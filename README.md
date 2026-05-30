@@ -1,209 +1,137 @@
-<h4 align="right"><strong>English</strong> | <a href="README_CN.md">简体中文</a></h4>
+# 🍎 Pake
+
 <p align="center">
-    <img src=https://gw.alipayobjects.com/zos/k/fa/logo-modified.png width=138/>
+  <img src="https://gw.alipayobjects.com/zos/k/fa/logo-modified.png" width="100">
 </p>
-<h1 align="center">Pake</h1>
-<p align="center"><strong>Turn any webpage into a desktop app with one command, supports macOS, Windows, and Linux</strong></p>
-<div align="center">
-    <a href="https://twitter.com/HiTw93" target="_blank">
-    <img alt="twitter" src="https://img.shields.io/badge/follow-Tw93-red?style=flat-square&logo=Twitter"></a>
-    <a href="https://t.me/+GclQS9ZnxyI2ODQ1" target="_blank">
-    <img alt="telegram" src="https://img.shields.io/badge/chat-telegram-blueviolet?style=flat-square&logo=Telegram"></a>
-    <a href="https://github.com/tw93/Pake/releases" target="_blank">
-    <img alt="GitHub downloads" src="https://img.shields.io/github/downloads/tw93/Pake/total.svg?style=flat-square"></a>
-    <a href="https://github.com/tw93/Pake/commits" target="_blank">
-    <img alt="GitHub commit" src="https://img.shields.io/github/commit-activity/m/tw93/Pake?style=flat-square"></a>
-    <a href="https://github.com/tw93/Pake/issues?q=is%3Aissue+is%3Aclosed" target="_blank">
-    <img alt="GitHub closed issues" src="https://img.shields.io/github/issues-closed/tw93/Pake.svg?style=flat-square"></a>
-</div>
 
-## Features
+> **一键打包网页为轻量桌面应用，支持 macOS / Windows / Linux。**
+> 作者：Red · 基于 [tw93/Pake](https://github.com/tw93/Pake) (Tauri) 二次开发。
 
-- 🎐 **Lightweight**: Nearly 20 times smaller than Electron packages, typically around 5M
-- 🚀 **Fast**: Built with Rust Tauri, much faster than traditional JS frameworks with lower memory usage
-- ⚡ **Easy to use**: One-command packaging via CLI or online building, no complex configuration needed
-- 📦 **Feature-rich**: Supports shortcuts, immersive windows, drag & drop, style customization, ad removal
+[![版本](https://img.shields.io/badge/版本-v0.0.1-blue)](CHANGELOG.md)
+[![许可证](https://img.shields.io/badge/许可证-MIT-lightgrey)](LICENSE)
+[![平台](https://img.shields.io/badge/平台-macOS%20%7C%20Windows%20%7C%20Linux-0078d4)](https://github.com/tw93/Pake)
+[![Tauri](https://img.shields.io/badge/Tauri-2.x-ffc131)](https://tauri.app)
+[![Rust](https://img.shields.io/badge/Rust-1.85+-ce422b)](https://rust-lang.org)
+[![npm](https://img.shields.io/npm/v/pake-cli?label=npm&color=cb3837)](https://www.npmjs.com/package/pake-cli)
 
-## Getting Started
+[English](README.en.md) | **简体中文**
 
-- **Beginners**: Download ready-made [Popular Packages](#popular-packages) or use [Online Building](docs/github-actions-usage.md) with no environment setup required
-- **Developers**: Install [CLI Tool](docs/cli-usage.md) for one-command packaging of any website with customizable icons, window settings, and more
-- **Advanced Users**: Clone the project locally for [Custom Development](#development), or check [Advanced Usage](docs/advanced-usage.md) for style customization and feature enhancement
-- **Troubleshooting**: Check [FAQ](docs/faq.md) for common issues and solutions
+---
 
-## Popular Packages
+## ✨ 这是什么？
 
-<table>
-    <tr>
-        <td>WeRead
-            <a href="https://github.com/tw93/Pake/releases/latest/download/WeRead.dmg">Mac</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/WeRead_x64.msi">Windows</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/WeRead_x86_64.deb">Linux</a>
-        </td>
-        <td>Twitter
-            <a href="https://github.com/tw93/Pake/releases/latest/download/Twitter.dmg">Mac</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/Twitter_x64.msi">Windows</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/Twitter_x86_64.deb">Linux</a>
-        </td>
-    </tr>
-    <tr>
-        <td><img src=https://raw.githubusercontent.com/tw93/static/main/pake/WeRead.jpg width=600/></td>
-        <td><img src=https://raw.githubusercontent.com/tw93/static/main/pake/Twitter.jpg width=600/></td>
-    </tr>
-    <tr>
-        <td>Grok
-            <a href="https://github.com/tw93/Pake/releases/latest/download/Grok.dmg">Mac</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/Grok_x64.msi">Windows</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/Grok_x86_64.deb">Linux</a>
-        </td>
-        <td>DeepSeek
-            <a href="https://github.com/tw93/Pake/releases/latest/download/DeepSeek.dmg">Mac</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/DeepSeek_x64.msi">Windows</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/DeepSeek_x86_64.deb">Linux</a>
-        </td>
-    </tr>
-    <tr>
-        <td><img src=https://raw.githubusercontent.com/tw93/static/main/pake/Grok.png width=600/></td>
-        <td><img src=https://raw.githubusercontent.com/tw93/static/main/pake/DeepSeek.png width=600/></td>
-    </tr>
-    <tr>
-        <td>ChatGPT
-            <a href="https://github.com/tw93/Pake/releases/latest/download/ChatGPT.dmg">Mac</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/ChatGPT_x64.msi">Windows</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/ChatGPT_x86_64.deb">Linux</a>
-        </td>
-        <td>Gemini
-            <a href="https://github.com/tw93/Pake/releases/latest/download/Gemini.dmg">Mac</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/Gemini_x64.msi">Windows</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/Gemini_x86_64.deb">Linux</a>
-        </td>
-    </tr>
-    <tr>
-        <td><img src=https://raw.githubusercontent.com/tw93/static/main/pake/ChatGPT.png width=600/></td>
-        <td><img src=https://raw.githubusercontent.com/tw93/static/main/pake/Gemini.png width=600/></td>
-    </tr>
-    <tr>
-      <td>YouTube Music
-            <a href="https://github.com/tw93/Pake/releases/latest/download/YouTubeMusic.dmg">Mac</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/YouTubeMusic_x64.msi">Windows</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/YouTubeMusic_x86_64.deb">Linux</a>
-      </td>
-      <td>YouTube
-            <a href="https://github.com/tw93/Pake/releases/latest/download/YouTube.dmg">Mac</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/YouTube_x64.msi">Windows</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/YouTube_x86_64.deb">Linux</a>
-      </td>
-    </tr>
-    <tr>
-        <td><img src=https://raw.githubusercontent.com/tw93/static/main/pake/YouTubeMusic.png width=600 /></td>
-        <td><img src=https://raw.githubusercontent.com/tw93/static/main/pake/YouTube.jpg width=600 /></td>
-    </tr>
-    <tr>
-        <td>LiZhi
-            <a href="https://github.com/tw93/Pake/releases/latest/download/LiZhi.dmg">Mac</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/LiZhi_x64.msi">Windows</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/LiZhi_x86_64.deb">Linux</a>
-        </td>
-        <td>ProgramMusic
-            <a href="https://github.com/tw93/Pake/releases/latest/download/ProgramMusic.dmg">Mac</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/ProgramMusic_x64.msi">Windows</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/ProgramMusic_x86_64.deb">Linux</a>
-        </td>
-    </tr>
-    <tr>
-        <td><img src=https://raw.githubusercontent.com/tw93/static/main/pake/LiZhi.jpg width=600/></td>
-        <td><img src=https://raw.githubusercontent.com/tw93/static/main/pake/ProgramMusic.jpg width=600/></td>
-    </tr>
-    <tr>
-        <td>Excalidraw
-            <a href="https://github.com/tw93/Pake/releases/latest/download/Excalidraw.dmg">Mac</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/Excalidraw_x64.msi">Windows</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/Excalidraw_x86_64.deb">Linux</a>
-        </td>
-        <td>XiaoHongShu
-            <a href="https://github.com/tw93/Pake/releases/latest/download/XiaoHongShu.dmg">Mac</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/XiaoHongShu_x64.msi">Windows</a>
-            <a href="https://github.com/tw93/Pake/releases/latest/download/XiaoHongShu_x86_64.deb">Linux</a>
-        </td>
-    </tr>
-    <tr>
-        <td><img src=https://raw.githubusercontent.com/tw93/static/main/pake/Excalidraw.png width=600/></td>
-        <td><img src=https://raw.githubusercontent.com/tw93/static/main/pake/XiaoHongShu.png width=600/></td>
-    </tr>
-</table>
+将任意网页打包成原生桌面应用的命令行工具。输出体积极小（~5MB），启动速度快，支持沉浸式窗口、快捷键、拖拽、样式定制等功能。
 
-<details>
-<summary>🏂 You can download more applications from <a href="https://github.com/tw93/Pake/releases">Releases</a>. <b>Click here to expand the shortcuts reference!</b></summary>
+---
 
-<br/>
+## 🧩 核心功能
 
-| Mac                                                       | Windows/Linux                                       | Function                            |
-| --------------------------------------------------------- | --------------------------------------------------- | ----------------------------------- |
-| <kbd>⌘</kbd> + <kbd>[</kbd>                               | <kbd>Ctrl</kbd> + <kbd>←</kbd>                      | Return to the previous page         |
-| <kbd>⌘</kbd> + <kbd>]</kbd>                               | <kbd>Ctrl</kbd> + <kbd>→</kbd>                      | Go to the next page                 |
-| <kbd>⌘</kbd> + <kbd>↑</kbd>                               | <kbd>Ctrl</kbd> + <kbd>↑</kbd>                      | Auto scroll to top of page          |
-| <kbd>⌘</kbd> + <kbd>↓</kbd>                               | <kbd>Ctrl</kbd> + <kbd>↓</kbd>                      | Auto scroll to bottom of page       |
-| <kbd>⌘</kbd> + <kbd>r</kbd>                               | <kbd>Ctrl</kbd> + <kbd>r</kbd>                      | Refresh Page                        |
-| <kbd>⌘</kbd> + <kbd>w</kbd>                               | <kbd>Ctrl</kbd> + <kbd>w</kbd>                      | Hide window, not quit               |
-| <kbd>⌘</kbd> + <kbd>-</kbd>                               | <kbd>Ctrl</kbd> + <kbd>-</kbd>                      | Zoom out the page                   |
-| <kbd>⌘</kbd> + <kbd>=</kbd>                               | <kbd>Ctrl</kbd> + <kbd>=</kbd>                      | Zoom in the Page                    |
-| <kbd>⌘</kbd> + <kbd>0</kbd>                               | <kbd>Ctrl</kbd> + <kbd>0</kbd>                      | Reset the page zoom                 |
-| <kbd>⌘</kbd> + <kbd>L</kbd>                               | <kbd>Ctrl</kbd> + <kbd>L</kbd>                      | Copy Current Page URL               |
-| <kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>⌥</kbd> + <kbd>V</kbd> | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd>   | Paste and Match Style               |
-| <kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>H</kbd>                | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>H</kbd>   | Go to Home Page                     |
-| <kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>I</kbd>                | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd>   | Toggle Developer Tools (Debug Only) |
-| <kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>⌫</kbd>                | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Del</kbd> | Clear Cache & Restart               |
+- 🎐 **体积小巧** - 相比 Electron 小近 20 倍
+- 🚀 **性能优异** - Rust Tauri 内核，内存占用低
+- ⚡ **使用简单** - 一行命令完成打包
+- 📦 **功能丰富** - 快捷键、沉浸式窗口、拖拽、样式定制、去广告
+- 🍎 **跨平台 macOS 风格** - Windows 下也可启用红绿灯窗口控制按钮
 
-In addition, double-click the title bar to switch to full-screen mode. For Mac users, you can also use the gesture to go to the previous or next page and drag the title bar to move the window. The new menu also offers options for navigation, zoom, and window controls.
+---
 
-</details>
+## 🚀 快速开始
 
-## Command-Line Packaging
-
-![Pake](https://raw.githubusercontent.com/tw93/static/main/pake/pake1.gif)
+### 安装 CLI
 
 ```bash
-# Install Pake CLI
 pnpm install -g pake-cli
+```
 
-# Basic usage - automatically fetches website icon
+### 基础用法
+
+```bash
+# 自动获取网站图标
 pake https://github.com --name GitHub
 
-# Advanced usage with custom options
-pake https://weekly.tw93.fun --name Weekly --icon https://cdn.tw93.fun/pake/weekly.icns --width 1200 --height 800 --hide-title-bar
+# 自定义选项
+pake https://weekly.tw93.fun --name Weekly --width 1200 --height 800 --hide-title-bar
+
+# Windows 下启用 macOS 风格窗口控制
+pake https://github.com --name GitHub --hide-title-bar
 ```
 
-First-time packaging requires environment setup and may be slower, subsequent builds are fast. For complete parameter documentation, see [CLI Usage Guide](docs/cli-usage.md). Don't want to use CLI? Try [GitHub Actions Online Building](docs/github-actions-usage.md).
+> [!TIP]
+> 首次打包需安装 Rust 环境，可能较慢，后续构建很快。
 
-## Development
+---
 
-Requires Rust `>=1.85` and Node `>=22` (recommended LTS; `>=18` also works). For detailed installation guide, see [Tauri documentation](https://v2.tauri.app/start/prerequisites/). If unfamiliar with development environment, use the CLI tool instead.
+## 📦 常用包下载
+
+更多应用见 [Release](https://github.com/tw93/Pake/releases)。
+
+| 应用 | Mac | Windows | Linux |
+|------|-----|---------|-------|
+| WeRead | [下载](https://github.com/tw93/Pake/releases/latest/download/WeRead.dmg) | [下载](https://github.com/tw93/Pake/releases/latest/download/WeRead_x64.msi) | [下载](https://github.com/tw93/Pake/releases/latest/download/WeRead_x86_64.deb) |
+| Twitter | [下载](https://github.com/tw93/Pake/releases/latest/download/Twitter.dmg) | [下载](https://github.com/tw93/Pake/releases/latest/download/Twitter_x64.msi) | [下载](https://github.com/tw93/Pake/releases/latest/download/Twitter_x86_64.deb) |
+| ChatGPT | [下载](https://github.com/tw93/Pake/releases/latest/download/ChatGPT.dmg) | [下载](https://github.com/tw93/Pake/releases/latest/download/ChatGPT_x64.msi) | [下载](https://github.com/tw93/Pake/releases/latest/download/ChatGPT_x86_64.deb) |
+| DeepSeek | [下载](https://github.com/tw93/Pake/releases/latest/download/DeepSeek.dmg) | [下载](https://github.com/tw93/Pake/releases/latest/download/DeepSeek_x64.msi) | [下载](https://github.com/tw93/Pake/releases/latest/download/DeepSeek_x86_64.deb) |
+| YouTube | [下载](https://github.com/tw93/Pake/releases/latest/download/YouTube.dmg) | [下载](https://github.com/tw93/Pake/releases/latest/download/YouTube_x64.msi) | [下载](https://github.com/tw93/Pake/releases/latest/download/YouTube_x86_64.deb) |
+| Grok | [下载](https://github.com/tw93/Pake/releases/latest/download/Grok.dmg) | [下载](https://github.com/tw93/Pake/releases/latest/download/Grok_x64.msi) | [下载](https://github.com/tw93/Pake/releases/latest/download/Grok_x86_64.deb) |
+
+---
+
+## ⌨️ 快捷键
+
+| Mac | Windows/Linux | 功能 |
+|-----|---------------|------|
+| <kbd>⌘</kbd> + <kbd>[</kbd> | <kbd>Ctrl</kbd> + <kbd>←</kbd> | 返回上一页 |
+| <kbd>⌘</kbd> + <kbd>]</kbd> | <kbd>Ctrl</kbd> + <kbd>→</kbd> | 前进下一页 |
+| <kbd>⌘</kbd> + <kbd>r</kbd> | <kbd>Ctrl</kbd> + <kbd>r</kbd> | 刷新页面 |
+| <kbd>⌘</kbd> + <kbd>-</kbd> | <kbd>Ctrl</kbd> + <kbd>-</kbd> | 缩小 |
+| <kbd>⌘</kbd> + <kbd>=</kbd> | <kbd>Ctrl</kbd> + <kbd>=</kbd> | 放大 |
+| <kbd>⌘</kbd> + <kbd>0</kbd> | <kbd>Ctrl</kbd> + <kbd>0</kbd> | 重置缩放 |
+
+---
+
+## 🛠 技术栈
+
+| 层 | 技术 |
+|----|------|
+| 运行时 | Tauri 2.x (Rust) |
+| 前端 | HTML / CSS / JavaScript |
+| 打包 | pnpm + Rollup (CLI) |
+| 平台 | macOS / Windows / Linux |
+
+---
+
+## 🛠 定制开发
+
+需要 Rust `>=1.85` 和 Node `>=22`，详见 [Tauri 文档](https://tauri.app/start/prerequisites/)。
 
 ```bash
-# Install dependencies
+git clone https://github.com/tw93/Pake.git
+cd Pake
 pnpm i
-
-# Local development [right-click to open debug mode]
-pnpm run dev
-
-# Build application
-pnpm run build
+pnpm run dev      # 本地开发
+pnpm run build    # 打包应用
 ```
 
-For style customization, feature enhancement, container communication and other advanced features, see [Advanced Usage Documentation](docs/advanced-usage.md).
+---
 
-## Developers
+## 📋 文档
 
-Pake's development can not be without these Hackers. They contributed a lot of capabilities for Pake. Also, welcome to follow them! ❤️
+| 文档 | 说明 |
+|------|------|
+| [CLI 使用指南](docs/cli-usage_CN.md) | 完整命令行参数 |
+| [在线构建](docs/github-actions-usage_CN.md) | GitHub Actions 构建 |
+| [高级用法](docs/advanced-usage_CN.md) | 样式定制、功能增强 |
+| [常见问题](docs/faq_CN.md) | 问题解决方案 |
 
-<a href="https://github.com/tw93/Pake/graphs/contributors">
-  <img src="./CONTRIBUTORS.svg?v=2" alt="Contributors" width="1000" />
-</a>
+---
 
-## Support
+## 📋 更新日志
 
-- If Pake helped you, [share it](https://twitter.com/intent/tweet?url=https://github.com/tw93/Pake&text=Pake%20-%20Turn%20any%20webpage%20into%20a%20desktop%20app%20with%20one%20command.%20Nearly%2020x%20smaller%20than%20Electron%20packages,%20supports%20macOS%20Windows%20Linux) with friends or give it a star.
-- Got ideas or bugs? Open an issue or PR, feel free to contribute your best AI model.
-- I have two cats, TangYuan and Coke. If you think Pake delights your life, you can feed them <a href="https://cats.tw93.fun?name=Pake" target="_blank">canned food 🥩</a>.
+见 [CHANGELOG.md](CHANGELOG.md)。
 
-<a href="https://cats.tw93.fun?name=Pake"><img src="https://cdn.jsdelivr.net/gh/tw93/sponsors@main/assets/sponsors.svg" width="1000" loading="lazy" /></a>
+---
+
+## 💙 致谢
+
+- 原项目：[Pake](https://github.com/tw93/Pake) by [Tw93](https://github.com/tw93)
+- 基于：[Tauri](https://tauri.app) (Rust)
+- 许可证：MIT
