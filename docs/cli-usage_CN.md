@@ -78,7 +78,7 @@ pake [url] [options]
 | `--icon`           | 自定义图标（可选，自动获取网站图标） | `--icon https://cdn.tw93.fun/pake/weekly.icns` |
 | `--width`          | 窗口宽度（默认：1200px）             | `--width 1400`                                 |
 | `--height`         | 窗口高度（默认：780px）              | `--height 900`                                 |
-| `--hide-title-bar` | 沉浸式标题栏（仅macOS）              | `--hide-title-bar`                             |
+| `--hide-title-bar` | 隐藏标题栏，启用 macOS 风格红绿灯按钮（Mac/Windows） | `--hide-title-bar`                             |
 | `--debug`          | 启用开发者工具                       | `--debug`                                      |
 
 完整选项请参见下面的详细说明：
@@ -166,7 +166,10 @@ pake https://github.com --name GitHub
 
 #### [hide-title-bar]
 
-设置是否启用沉浸式头部，默认为 `false`（不启用）。当前只对 macOS 上有效。
+设置是否启用沉浸式头部和 macOS 风格窗口控制，默认为 `false`（不启用）。
+
+- **macOS**：隐藏原生标题栏，使用 Overlay 风格，显示红绿灯窗口控制按钮
+- **Windows**：移除原生窗口边框，添加自定义红绿灯窗口控制按钮（关闭/最小化/最大化），顶部区域可拖拽移动窗口
 
 ```shell
 --hide-title-bar

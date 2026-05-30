@@ -313,6 +313,51 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // macOS-style traffic light button handlers for Windows
+  const isWindows = /windows/i.test(navigator.userAgent);
+  if (isWindows && pakeConfig?.hide_title_bar) {
+    const trafficLights = document.getElementById("pake-traffic-lights");
+    if (trafficLights) {
+      const closeBtn = trafficLights.querySelector(".close");
+      const minimizeBtn = trafficLights.querySelector(".minimize");
+      const maximizeBtn = trafficLights.querySelector(".maximize");
+
+      closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        appWindow.close();
+      });
+
+      minimizeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        appWindow.minimize();
+      });
+
+      maximizeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        appWindow.toggleMaximize();
+      });
+
+      // Update maximize button icon based on window state
+      function updateMaximizeState() {
+        appWindow.isMaximized().then((maximized) => {
+          maximizeBtn.title = maximized ? "Restore" : "Maximize";
+        });
+      }
+
+      // Update state on focus and periodically
+      window.addEventListener("focus", updateMaximizeState);
+      updateMaximizeState();
+
+      // Window active/inactive state for traffic light appearance
+      window.addEventListener("focus", () => {
+        trafficLights.classList.remove("inactive");
+      });
+      window.addEventListener("blur", () => {
+        trafficLights.classList.add("inactive");
+      });
+    }
+  }
+
   if (window["pakeConfig"]?.disabled_web_shortcuts !== true) {
     document.addEventListener("keyup", (event) => {
       if (/windows|linux/i.test(navigator.userAgent) && event.ctrlKey) {

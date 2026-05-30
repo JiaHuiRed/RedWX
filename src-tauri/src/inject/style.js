@@ -486,6 +486,11 @@ window.addEventListener("DOMContentLoaded", (_event) => {
       z-index: 99999;
     }
 
+    /* On Windows with traffic lights, extend drag region height to cover full traffic light area */
+    body.pake-macos-style #pake-top-dom {
+      height: 36px;
+    }
+
     @media (max-width:767px){
       #__next .overflow-hidden.w-full .max-w-full>.sticky.top-0 {
         padding-top: 20px;
@@ -497,9 +502,107 @@ window.addEventListener("DOMContentLoaded", (_event) => {
     }
   `;
   const isMac = /Mac/i.test(navigator.userAgent);
-  if (window["pakeConfig"]?.hide_title_bar && isMac) {
+  if (window["pakeConfig"]?.hide_title_bar) {
     const topPaddingStyleElement = document.createElement("style");
     topPaddingStyleElement.textContent = topPaddingCSS;
     document.head.appendChild(topPaddingStyleElement);
+  }
+
+  // macOS-style traffic light buttons for Windows when hide_title_bar is enabled
+  if (!isMac && window["pakeConfig"]?.hide_title_bar) {
+    const trafficLightCSS = `
+      #pake-traffic-lights {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        padding-left: 12px;
+        gap: 8px;
+        z-index: 100000;
+        -webkit-app-region: no-drag;
+        pointer-events: auto;
+      }
+
+      #pake-traffic-lights .traffic-light {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: filter 0.15s ease;
+        position: relative;
+      }
+
+      #pake-traffic-lights .traffic-light.close {
+        background: #ff5f57;
+        border: 0.5px solid #e0443e;
+      }
+
+      #pake-traffic-lights .traffic-light.minimize {
+        background: #febc2e;
+        border: 0.5px solid #dea123;
+      }
+
+      #pake-traffic-lights .traffic-light.maximize {
+        background: #28c840;
+        border: 0.5px solid #1aab29;
+      }
+
+      #pake-traffic-lights:hover .traffic-light.close::after {
+        content: "×";
+        font-size: 12px;
+        line-height: 1;
+        color: rgba(0, 0, 0, 0.5);
+        font-weight: bold;
+      }
+
+      #pake-traffic-lights:hover .traffic-light.minimize::after {
+        content: "−";
+        font-size: 14px;
+        line-height: 1;
+        color: rgba(0, 0, 0, 0.5);
+        font-weight: bold;
+      }
+
+      #pake-traffic-lights:hover .traffic-light.maximize::after {
+        content: "+";
+        font-size: 14px;
+        line-height: 1;
+        color: rgba(0, 0, 0, 0.5);
+        font-weight: bold;
+      }
+
+      #pake-traffic-lights .traffic-light:active {
+        filter: brightness(0.8);
+      }
+
+      /* Inactive state - all buttons become gray */
+      #pake-traffic-lights.inactive .traffic-light {
+        background: #ddd;
+        border-color: #ccc;
+      }
+
+      #pake-traffic-lights.inactive .traffic-light::after {
+        display: none !important;
+      }
+    `;
+    const trafficLightStyleElement = document.createElement("style");
+    trafficLightStyleElement.textContent = trafficLightCSS;
+    document.head.appendChild(trafficLightStyleElement);
+
+    // Create traffic light buttons
+    const trafficLights = document.createElement("div");
+    trafficLights.id = "pake-traffic-lights";
+    trafficLights.innerHTML = `
+      <div class="traffic-light close" title="Close"></div>
+      <div class="traffic-light minimize" title="Minimize"></div>
+      <div class="traffic-light maximize" title="Maximize"></div>
+    `;
+    document.body.appendChild(trafficLights);
+    document.body.classList.add("pake-macos-style");
   }
 });

@@ -44,7 +44,7 @@ ${green('|_|   \\__,_|_|\\_\\___|  can turn any webpage into a desktop app with 
       DEFAULT.useLocalFile,
     )
     .option('--fullscreen', 'Start in full screen', DEFAULT.fullscreen)
-    .option('--hide-title-bar', 'For Mac, hide title bar', DEFAULT.hideTitleBar)
+    .option('--hide-title-bar', 'Hide title bar and use macOS-style traffic lights (Mac/Windows)', DEFAULT.hideTitleBar)
     .option('--multi-arch', 'For Mac, both Intel and M1', DEFAULT.multiArch)
     .option(
       '--inject <files>',

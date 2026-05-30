@@ -13,9 +13,9 @@ const WINDOW_SHOW_DELAY: u64 = 50;
 
 use app::{
     invoke::{
-        clear_cache_and_restart, clear_dock_badge, download_file, download_file_by_binary,
-        increment_dock_badge, send_notification, set_dock_badge, set_dock_badge_label,
-        update_theme_mode,
+        clear_cache_and_restart, clear_dock_badge, close_window, download_file,
+        download_file_by_binary, increment_dock_badge, maximize_window, minimize_window,
+        send_notification, set_dock_badge, set_dock_badge_label, update_theme_mode,
     },
     setup::{set_global_shortcut, set_system_tray},
     window::{open_additional_window_safe, set_window, MultiWindowState},
@@ -89,6 +89,9 @@ pub fn run_app() {
             clear_dock_badge,
             update_theme_mode,
             clear_cache_and_restart,
+            minimize_window,
+            maximize_window,
+            close_window,
         ])
         .setup(move |app| {
             app.manage(MultiWindowState::new(

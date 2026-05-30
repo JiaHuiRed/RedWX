@@ -114,6 +114,34 @@ fn handle_scroll(scroll_y: f64, scroll_x: f64) {
 }
 ```
 
+### macOS 风格窗口控制（跨平台）
+
+使用 `--hide-title-bar` 参数可以在 Windows 上启用 macOS 风格的窗口控制界面：
+
+```bash
+# Windows 下启用 macOS 风格红绿灯按钮
+pake https://github.com --name GitHub --hide-title-bar
+```
+
+**功能特性：**
+
+- **红绿灯按钮**：左上角显示关闭（红）、最小化（黄）、最大化（绿）三个圆形按钮
+- **悬停效果**：鼠标悬停时显示对应图标（×、−、+）
+- **失焦状态**：窗口失去焦点时按钮变为灰色
+- **拖拽支持**：顶部区域可拖拽移动窗口
+- **顶部间距**：自动为网页内容添加顶部间距，避免被标题栏遮挡
+
+**实现原理：**
+
+- macOS：使用 Tauri 的 `TitleBarStyle::Overlay` 隐藏原生标题栏
+- Windows：使用 `decorations(false)` 移除原生窗口边框，通过 CSS/JS 注入自定义红绿灯按钮
+
+**相关文件：**
+
+- `src-tauri/src/inject/style.js` — 红绿灯按钮样式和顶部间距
+- `src-tauri/src/inject/event.js` — 按钮事件处理
+- `src-tauri/src/app/window.rs` — 窗口创建配置
+
 ## 静态文件打包
 
 打包本地 HTML/CSS/JS 文件：

@@ -268,3 +268,34 @@ pub fn clear_cache_and_restart(app: AppHandle) -> Result<(), String> {
         Err("Main window not found".to_string())
     }
 }
+
+#[command]
+pub fn minimize_window(app: AppHandle) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("pake") {
+        window.minimize().map_err(|e| e.to_string())
+    } else {
+        Err("Main window not found".to_string())
+    }
+}
+
+#[command]
+pub fn maximize_window(app: AppHandle) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("pake") {
+        if window.is_maximized().unwrap_or(false) {
+            window.unmaximize().map_err(|e| e.to_string())
+        } else {
+            window.maximize().map_err(|e| e.to_string())
+        }
+    } else {
+        Err("Main window not found".to_string())
+    }
+}
+
+#[command]
+pub fn close_window(app: AppHandle) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("pake") {
+        window.close().map_err(|e| e.to_string())
+    } else {
+        Err("Main window not found".to_string())
+    }
+}

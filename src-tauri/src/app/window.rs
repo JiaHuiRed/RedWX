@@ -361,6 +361,15 @@ fn build_window(
         window_builder = window_builder.theme(theme);
     }
 
+    // Windows: when hide_title_bar is set, remove native decorations to create
+    // a macOS-style frameless window with custom traffic-light controls.
+    #[cfg(target_os = "windows")]
+    {
+        if window_config.hide_title_bar {
+            window_builder = window_builder.decorations(false);
+        }
+    }
+
     // Windows and Linux: set data_directory before proxy_url
     #[cfg(not(target_os = "macos"))]
     {
