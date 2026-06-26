@@ -1,14 +1,9 @@
 {
-  "productName": "Weekly",
-  "identifier": "com.pake.weekly",
-  "version": "3.11.7",
+  "productName": "RedWX",
+  "identifier": "com.redcode.redwx",
+  "version": "0.0.2",
   "app": {
     "withGlobalTauri": true,
-    "trayIcon": {
-      "iconPath": "png/weekly_512.png",
-      "iconAsTemplate": false,
-      "id": "pake-tray"
-    },
     "security": {
       "headers": {},
       "csp": null

@@ -1,8 +1,18 @@
 # 更新日志
 
-本文件记录 Pake 的所有重要变更。
+本文件记录 RedWX 的所有重要变更。
 
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
+
+---
+
+## [0.0.2] - 2026-06-26
+
+### 优化
+
+- **Release 体积优化**：`lto = "thin"` → `lto = "fat"`，release 包体积进一步压缩（`src-tauri/Cargo.toml`）
+- **注入脚本瘦身**：移除 `style.js` 中非微信读书相关的站点适配 CSS（Twitter / ChatGPT / YouTube / Lark / Excalidraw 等），体积减少约 36%（`src-tauri/src/inject/style.js`）
+- **编译警告清理**：修复 `unused variable: enable_find` warning（`src-tauri/src/lib.rs`）
 
 ---
 

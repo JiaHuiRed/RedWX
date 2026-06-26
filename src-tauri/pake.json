@@ -1,12 +1,12 @@
 {
   "windows": [
     {
-      "url": "https://weekly.tw93.fun/en",
+      "url": "https://weread.qq.com/",
       "url_type": "web",
       "hide_title_bar": true,
       "fullscreen": false,
       "width": 1200,
-      "height": 780,
+      "height": 800,
       "resizable": true,
       "always_on_top": false,
       "dark_mode": false,
@@ -31,8 +31,8 @@
   },
   "system_tray": {
     "macos": false,
-    "linux": true,
-    "windows": true
+    "linux": false,
+    "windows": false
   },
   "system_tray_path": "icons/icon.png",
   "inject": [],

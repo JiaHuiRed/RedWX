@@ -11,9 +11,6 @@ pub fn set_app_menu(
     allow_multi_window: bool,
     enable_find: bool,
 ) -> tauri::Result<()> {
-    let pake_version = env!("CARGO_PKG_VERSION");
-    let pake_menu_item_title = format!("Built with Pake V{}", pake_version);
-
     let window_submenu = window_menu(app)?;
 
     let menu = Menu::with_items(
@@ -25,25 +22,23 @@ pub fn set_app_menu(
             &view_menu(app)?,
             &navigation_menu(app)?,
             &window_submenu,
-            &help_menu(app, &pake_menu_item_title)?,
+            &help_menu(app)?,
         ],
     )?;
 
     app.set_menu(menu)?;
 
-    // AppKit injects Move & Resize, Fill, Center, Full Screen Tile, and
-    // window-cycling once the submenu is registered as the windows menu.
     window_submenu.set_as_windows_menu_for_nsapp()?;
 
     Ok(())
 }
 
 fn app_menu(app: &AppHandle<Wry>) -> tauri::Result<Submenu<Wry>> {
-    let app_menu = Submenu::new(app, "Pake", true)?;
+    let app_menu = Submenu::new(app, "RedWX", true)?;
     let about_metadata = AboutMetadata::default();
     app_menu.append(&PredefinedMenuItem::about(
         app,
-        Some("Pake"),
+        Some("RedWX"),
         Some(about_metadata),
     )?)?;
     app_menu.append(&PredefinedMenuItem::separator(app)?)?;
@@ -58,12 +53,12 @@ fn app_menu(app: &AppHandle<Wry>) -> tauri::Result<Submenu<Wry>> {
 }
 
 fn file_menu(app: &AppHandle<Wry>, allow_multi_window: bool) -> tauri::Result<Submenu<Wry>> {
-    let file_menu = Submenu::new(app, "File", true)?;
+    let file_menu = Submenu::new(app, "文件", true)?;
     if allow_multi_window {
         file_menu.append(&MenuItem::with_id(
             app,
             "new_window",
-            "New Window",
+            "新建窗口",
             true,
             Some("CmdOrCtrl+N"),
         )?)?;
@@ -74,7 +69,7 @@ fn file_menu(app: &AppHandle<Wry>, allow_multi_window: bool) -> tauri::Result<Su
     file_menu.append(&MenuItem::with_id(
         app,
         "clear_cache_restart",
-        "Clear Cache & Restart",
+        "清除缓存并重启",
         true,
         Some("CmdOrCtrl+Shift+Backspace"),
     )?)?;
@@ -82,7 +77,7 @@ fn file_menu(app: &AppHandle<Wry>, allow_multi_window: bool) -> tauri::Result<Su
 }
 
 fn edit_menu(app: &AppHandle<Wry>, enable_find: bool) -> tauri::Result<Submenu<Wry>> {
-    let edit_menu = Submenu::new(app, "Edit", true)?;
+    let edit_menu = Submenu::new(app, "编辑", true)?;
     edit_menu.append(&PredefinedMenuItem::undo(app, None)?)?;
     edit_menu.append(&PredefinedMenuItem::redo(app, None)?)?;
     edit_menu.append(&PredefinedMenuItem::separator(app)?)?;
@@ -92,7 +87,7 @@ fn edit_menu(app: &AppHandle<Wry>, enable_find: bool) -> tauri::Result<Submenu<W
     edit_menu.append(&MenuItem::with_id(
         app,
         "paste_and_match_style",
-        "Paste and Match Style",
+        "粘贴并匹配样式",
         true,
         Some("CmdOrCtrl+Shift+Option+V"),
     )?)?;
@@ -102,21 +97,21 @@ fn edit_menu(app: &AppHandle<Wry>, enable_find: bool) -> tauri::Result<Submenu<W
         edit_menu.append(&MenuItem::with_id(
             app,
             "find",
-            "Find",
+            "查找",
             true,
             Some("CmdOrCtrl+F"),
         )?)?;
         edit_menu.append(&MenuItem::with_id(
             app,
             "find_next",
-            "Find Next",
+            "查找下一个",
             true,
             Some("CmdOrCtrl+G"),
         )?)?;
         edit_menu.append(&MenuItem::with_id(
             app,
             "find_previous",
-            "Find Previous",
+            "查找上一个",
             true,
             Some("CmdOrCtrl+Shift+G"),
         )?)?;
@@ -125,7 +120,7 @@ fn edit_menu(app: &AppHandle<Wry>, enable_find: bool) -> tauri::Result<Submenu<W
     edit_menu.append(&MenuItem::with_id(
         app,
         "copy_url",
-        "Copy URL",
+        "复制链接",
         true,
         Some("CmdOrCtrl+L"),
     )?)?;
@@ -133,11 +128,11 @@ fn edit_menu(app: &AppHandle<Wry>, enable_find: bool) -> tauri::Result<Submenu<W
 }
 
 fn view_menu(app: &AppHandle<Wry>) -> tauri::Result<Submenu<Wry>> {
-    let view_menu = Submenu::new(app, "View", true)?;
+    let view_menu = Submenu::new(app, "视图", true)?;
     view_menu.append(&MenuItem::with_id(
         app,
         "reload",
-        "Reload",
+        "重新加载",
         true,
         Some("CmdOrCtrl+R"),
     )?)?;
@@ -145,21 +140,21 @@ fn view_menu(app: &AppHandle<Wry>) -> tauri::Result<Submenu<Wry>> {
     view_menu.append(&MenuItem::with_id(
         app,
         "zoom_in",
-        "Zoom In",
+        "放大",
         true,
         Some("CmdOrCtrl+="),
     )?)?;
     view_menu.append(&MenuItem::with_id(
         app,
         "zoom_out",
-        "Zoom Out",
+        "缩小",
         true,
         Some("CmdOrCtrl+-"),
     )?)?;
     view_menu.append(&MenuItem::with_id(
         app,
         "zoom_reset",
-        "Actual Size",
+        "实际大小",
         true,
         Some("CmdOrCtrl+0"),
     )?)?;
@@ -169,7 +164,7 @@ fn view_menu(app: &AppHandle<Wry>) -> tauri::Result<Submenu<Wry>> {
     view_menu.append(&MenuItem::with_id(
         app,
         "toggle_devtools",
-        "Toggle Developer Tools",
+        "开发者工具",
         cfg!(debug_assertions),
         Some("CmdOrCtrl+Option+I"),
     )?)?;
@@ -177,25 +172,25 @@ fn view_menu(app: &AppHandle<Wry>) -> tauri::Result<Submenu<Wry>> {
 }
 
 fn navigation_menu(app: &AppHandle<Wry>) -> tauri::Result<Submenu<Wry>> {
-    let navigation_menu = Submenu::new(app, "Navigation", true)?;
+    let navigation_menu = Submenu::new(app, "导航", true)?;
     navigation_menu.append(&MenuItem::with_id(
         app,
         "go_back",
-        "Back",
+        "后退",
         true,
         Some("CmdOrCtrl+["),
     )?)?;
     navigation_menu.append(&MenuItem::with_id(
         app,
         "go_forward",
-        "Forward",
+        "前进",
         true,
         Some("CmdOrCtrl+]"),
     )?)?;
     navigation_menu.append(&MenuItem::with_id(
         app,
         "go_home",
-        "Go Home",
+        "回到首页",
         true,
         Some("CmdOrCtrl+Shift+H"),
     )?)?;
@@ -203,14 +198,14 @@ fn navigation_menu(app: &AppHandle<Wry>) -> tauri::Result<Submenu<Wry>> {
 }
 
 fn window_menu(app: &AppHandle<Wry>) -> tauri::Result<Submenu<Wry>> {
-    let window_menu = Submenu::new(app, "Window", true)?;
+    let window_menu = Submenu::new(app, "窗口", true)?;
     window_menu.append(&PredefinedMenuItem::minimize(app, None)?)?;
     window_menu.append(&PredefinedMenuItem::maximize(app, None)?)?;
     window_menu.append(&PredefinedMenuItem::separator(app)?)?;
     window_menu.append(&MenuItem::with_id(
         app,
         "always_on_top",
-        "Toggle Always on Top",
+        "窗口置顶",
         true,
         None::<&str>,
     )?)?;
@@ -219,10 +214,8 @@ fn window_menu(app: &AppHandle<Wry>) -> tauri::Result<Submenu<Wry>> {
     Ok(window_menu)
 }
 
-fn help_menu(app: &AppHandle<Wry>, title: &str) -> tauri::Result<Submenu<Wry>> {
-    let help_menu = Submenu::new(app, "Help", true)?;
-    let github_item = MenuItem::with_id(app, "pake_github_link", title, true, None::<&str>)?;
-    help_menu.append(&github_item)?;
+fn help_menu(app: &AppHandle<Wry>) -> tauri::Result<Submenu<Wry>> {
+    let help_menu = Submenu::new(app, "帮助", true)?;
     Ok(help_menu)
 }
 
@@ -231,18 +224,13 @@ pub fn handle_menu_click(app_handle: &AppHandle, id: &str) {
         "new_window" => {
             open_additional_window_safe(app_handle);
         }
-        "pake_github_link" => {
-            let _ = app_handle
-                .opener()
-                .open_url("https://github.com/tw93/Pake", None::<&str>);
-        }
         "reload" => {
             if let Some(window) = app_handle.get_webview_window("pake") {
                 let _ = window.eval("window.location.reload()");
             }
         }
         "toggle_devtools" => {
-            #[cfg(debug_assertions)] // Only allow in debug builds
+            #[cfg(debug_assertions)]
             if let Some(window) = app_handle.get_webview_window("pake") {
                 if window.is_devtools_open() {
                     window.close_devtools();
