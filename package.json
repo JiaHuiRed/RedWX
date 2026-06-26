@@ -1,9 +1,10 @@
 {
   "name": "red-wx",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "微信读书桌面客户端，基于 Tauri。",
   "author": "RedCode",
   "license": "MIT",
+  "packageManager": "pnpm@11.2.2",
   "bin": {
     "pake": "dist/cli.js"
   },

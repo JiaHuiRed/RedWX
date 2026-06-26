@@ -10,7 +10,7 @@ rust-version = "1.85.0"
 
 [lib]
 name = "app_lib"
-crate-type = ["staticlib", "cdylib", "lib"]
+crate-type = ["cdylib", "lib"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -54,6 +54,6 @@ custom-protocol = ["tauri/custom-protocol"]
 [profile.release]
 panic = "abort"
 codegen-units = 1
-lto = "fat"
+lto = "thin"
 opt-level = "z"
 strip = true

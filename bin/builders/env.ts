@@ -50,7 +50,7 @@ function parseMajorVersion(version: string): number | null {
 }
 
 function getPinnedPnpmMajorVersion(): number | null {
-  const packageManager = packageJson.packageManager;
+  const packageManager = (packageJson as any).packageManager;
   const match = packageManager?.match(/^pnpm@(\d+)/);
   return match ? Number(match[1]) : null;
 }
@@ -93,7 +93,7 @@ export async function detectPackageManager(): Promise<'pnpm' | 'npm'> {
       (await detectNpm(execa))
     ) {
       logger.warn(
-        `✼ Detected pnpm v${stdout.trim()}, but Pake is pinned to ${packageJson.packageManager}; using npm for package installation instead.`,
+        `✼ Detected pnpm v${stdout.trim()}, but Pake is pinned to ${(packageJson as any).packageManager}; using npm for package installation instead.`,
       );
       packageManagerCache = 'npm';
       return 'npm';

@@ -6,6 +6,20 @@
 
 ---
 
+## [0.0.3] - 2026-06-26
+
+### 修复
+
+- **Windows 编译环境修复**：安装 Visual Studio Build Tools + Windows 10 SDK，配置 `C:\BuildTools\VC\Auxiliary\Build\vcvars64.bat` MSVC 编译环境，解决 `cargo build --release` 链接失败问题（`build.bat`、`.cargo/config.toml`、`rust-toolchain.toml`）
+- **Tauri 配置修复**：`tauri.conf.json` 中 `withGlobalTauri` 改为 `false`，修复全局 Tauri 冲突导致的启动失败
+
+### 优化
+
+- **Release 链接器配置**：移除自定义 `.cargo/config.toml` 中的 `rust-lld` 强制配置，改用系统 MSVC `link.exe`，解决 `export ordinal too large` 链接错误
+- **一键打包脚本**：新增 `build.bat`，自动加载 VC 环境并执行 `pnpm run build`，简化 Windows 打包流程
+
+---
+
 ## [0.0.2] - 2026-06-26
 
 ### 优化

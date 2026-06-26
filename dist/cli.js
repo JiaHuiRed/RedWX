@@ -19,23 +19,21 @@ import * as psl from 'psl';
 import { InvalidArgumentError, program as program$1, Option } from 'commander';
 import fs$1 from 'fs';
 
-var name = "pake-cli";
-var version = "3.11.7";
-var description = "🤱🏻 Turn any webpage into a desktop app with one command. 🤱🏻 一键打包网页生成轻量桌面应用。";
-var engines = {
-	node: ">=18.0.0"
+var name = "red-wx";
+var version = "0.0.2";
+var description = "微信读书桌面客户端，基于 Tauri。";
+var author = {
+	name: "Tw93",
+	email: "tw93@qq.com"
 };
-var packageManager = "pnpm@10.26.2";
+var license = "MIT";
+var packageManager = "pnpm@11.2.2";
 var bin = {
 	pake: "dist/cli.js"
 };
 var repository = {
 	type: "git",
 	url: "git+https://github.com/tw93/Pake.git"
-};
-var author = {
-	name: "Tw93",
-	email: "tw93@qq.com"
 };
 var keywords = [
 	"pake",
@@ -68,7 +66,6 @@ var scripts = {
 };
 var type = "module";
 var exports$1 = "./dist/cli.js";
-var license = "MIT";
 var dependencies = {
 	"@tauri-apps/api": "~2.10.1",
 	"@tauri-apps/cli": "^2.10.0",
@@ -120,17 +117,16 @@ var packageJson = {
 	name: name,
 	version: version,
 	description: description,
-	engines: engines,
+	author: author,
+	license: license,
 	packageManager: packageManager,
 	bin: bin,
 	repository: repository,
-	author: author,
 	keywords: keywords,
 	files: files,
 	scripts: scripts,
 	type: type,
 	exports: exports$1,
-	license: license,
 	dependencies: dependencies,
 	devDependencies: devDependencies,
 	pnpm: pnpm
@@ -2484,7 +2480,7 @@ ${green('|_|   \\__,_|_|\\_\\___|  can turn any webpage into a desktop app with 
         .option('--height <number>', 'Window height', validateNumberInput, DEFAULT_PAKE_OPTIONS.height)
         .option('--use-local-file', 'Use local file packaging', DEFAULT_PAKE_OPTIONS.useLocalFile)
         .option('--fullscreen', 'Start in full screen', DEFAULT_PAKE_OPTIONS.fullscreen)
-        .option('--hide-title-bar', 'For Mac, hide title bar', DEFAULT_PAKE_OPTIONS.hideTitleBar)
+        .option('--hide-title-bar', 'Hide title bar and use macOS-style traffic lights (Mac/Windows)', DEFAULT_PAKE_OPTIONS.hideTitleBar)
         .option('--multi-arch', 'For Mac, both Intel and M1', DEFAULT_PAKE_OPTIONS.multiArch)
         .option('--inject <files>', 'Inject local CSS/JS files into the page', (val, previous) => {
         if (!val)
