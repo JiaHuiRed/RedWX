@@ -1,5 +1,8 @@
-window.addEventListener("DOMContentLoaded", (_event) => {
-  // Customize and transform existing functions
+async function injectPakeStyles() {
+  while (!document.body) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  console.log("[RedWX] injectPakeStyles called, hide_title_bar:", window["pakeConfig"]?.hide_title_bar);
   const contentCSS = `
     #page #footer-wrapper,
     .drawing-board .toolbar .toolbar-action,
@@ -333,42 +336,19 @@ window.addEventListener("DOMContentLoaded", (_event) => {
         border: 0.5px solid #1aab29;
       }
 
-      #pake-traffic-lights:hover .traffic-light.close::after {
-        content: "×";
-        font-size: 12px;
-        line-height: 1;
-        color: rgba(0, 0, 0, 0.5);
-        font-weight: bold;
-      }
-
-      #pake-traffic-lights:hover .traffic-light.minimize::after {
-        content: "−";
-        font-size: 14px;
-        line-height: 1;
-        color: rgba(0, 0, 0, 0.5);
-        font-weight: bold;
-      }
-
-      #pake-traffic-lights:hover .traffic-light.maximize::after {
-        content: "+";
-        font-size: 14px;
-        line-height: 1;
-        color: rgba(0, 0, 0, 0.5);
-        font-weight: bold;
-      }
-
-      #pake-traffic-lights .traffic-light:active {
-        filter: brightness(0.8);
-      }
-
       /* Inactive state - all buttons become gray */
       #pake-traffic-lights.inactive .traffic-light {
         background: #ddd;
         border-color: #ccc;
       }
 
-      #pake-traffic-lights.inactive .traffic-light::after {
-        display: none !important;
+      #pake-app-version {
+        margin-left: 12px;
+        font-size: 11px;
+        color: #888;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        user-select: none;
+        pointer-events: none;
       }
     `;
     const trafficLightStyleElement = document.createElement("style");
@@ -384,6 +364,18 @@ window.addEventListener("DOMContentLoaded", (_event) => {
       <div class="traffic-light maximize" title="Maximize"></div>
     `;
     document.body.appendChild(trafficLights);
+    const versionSpan = document.createElement("span");
+    versionSpan.id = "pake-app-version";
+    versionSpan.textContent = "v" + (window["pakeConfig"]?.version || "0.1.0");
+    trafficLights.appendChild(versionSpan);
     document.body.classList.add("pake-macos-style");
+    console.log("[RedWX] Traffic lights injected");
   }
-});
+  console.log("[RedWX] injectPakeStyles done");
+}
+
+if (document.readyState === "loading") {
+  window.addEventListener("DOMContentLoaded", injectPakeStyles);
+} else {
+  injectPakeStyles();
+}

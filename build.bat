@@ -1,66 +1,67 @@
 @echo off
-chcp 65001 >nul
 setlocal enabledelayedexpansion
 
-title RedWX 一键打包
-
+title RedWX build
 echo.
 echo ========================================
-echo        RedWX 一键打包脚本
+echo        RedWX build script
 echo ========================================
 echo.
 
 set "PROJECT_DIR=%~dp0"
 cd /d "%PROJECT_DIR%"
 
-:: 检查 pnpm
+:: Check pnpm
 where pnpm >nul 2>nul
 if errorlevel 1 (
-    echo [错误] 未找到 pnpm，请先安装 pnpm
-    echo       安装命令: npm install -g pnpm
+    echo [ERROR] pnpm not found. Install it first
+    echo       Install: npm install -g pnpm
     pause
     exit /b 1
 )
 
-:: 检查 node_modules
+:: Check node_modules
 if not exist "node_modules" (
-    echo [1/3] 安装依赖中...
+    echo [1/3] Installing dependencies...
     call pnpm install
     if errorlevel 1 (
-        echo [错误] 依赖安装失败
+        echo [ERROR] install failed
         pause
         exit /b 1
     )
 ) else (
-    echo [1/3] 依赖已安装，跳过
+    echo [1/3] Dependencies ready, skip
 )
 
-:: 构建前端
+:: Build frontend
 echo.
-echo [2/3] 构建前端资源...
+echo [2/3] Building frontend...
 call pnpm run cli:build
 if errorlevel 1 (
-    echo [错误] 前端构建失败
+    echo [ERROR] frontend build failed
     pause
     exit /b 1
 )
 
-:: 构建 Tauri 应用
+:: Close running RedWX
+taskkill /F /IM red-wx.exe >nul 2>nul
+
+:: Build Tauri app (exe only, skip installer bundling to avoid WiX timeout)
 echo.
-echo [3/3] 构建 Tauri 应用...
+echo [3/3] Building Tauri app...
 call "C:\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-call pnpm run build
+call pnpm run build --no-bundle
 if errorlevel 1 (
-    echo [错误] Tauri 构建失败
+    echo [ERROR] Tauri build failed
     pause
     exit /b 1
 )
 
 echo.
 echo ========================================
-echo        构建完成！
+echo        Build done!
 echo ========================================
 echo.
-echo 输出目录: src-tauri\target\release\bundle\nsis\
+echo Output: src-tauri\target\release\
 echo.
 pause

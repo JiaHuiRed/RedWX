@@ -43,42 +43,10 @@ fn default_zoom() -> u32 {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct PlatformSpecific<T> {
-    pub macos: T,
-    pub linux: T,
-    pub windows: T,
-}
-
-impl<T> PlatformSpecific<T> {
-    pub const fn get(&self) -> &T {
-        #[cfg(target_os = "macos")]
-        let platform = &self.macos;
-        #[cfg(target_os = "linux")]
-        let platform = &self.linux;
-        #[cfg(target_os = "windows")]
-        let platform = &self.windows;
-
-        platform
-    }
-}
-
-impl<T> PlatformSpecific<T>
-where
-    T: Copy,
-{
-    pub const fn copied(&self) -> T {
-        *self.get()
-    }
-}
-
-pub type UserAgent = PlatformSpecific<String>;
-pub type FunctionON = PlatformSpecific<bool>;
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PakeConfig {
     pub windows: Vec<WindowConfig>,
-    pub user_agent: UserAgent,
-    pub system_tray: FunctionON,
+    pub user_agent: String,
+    pub system_tray: bool,
     pub system_tray_path: String,
     pub proxy_url: String,
     #[serde(default)]
@@ -89,6 +57,6 @@ pub struct PakeConfig {
 
 impl PakeConfig {
     pub fn show_system_tray(&self) -> bool {
-        self.system_tray.copied()
+        self.system_tray
     }
 }

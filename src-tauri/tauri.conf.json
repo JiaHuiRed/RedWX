@@ -1,9 +1,9 @@
 {
   "productName": "RedWX",
   "identifier": "com.redcode.redwx",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "app": {
-    "withGlobalTauri": false,
+    "withGlobalTauri": true,
     "security": {
       "headers": {},
       "csp": null

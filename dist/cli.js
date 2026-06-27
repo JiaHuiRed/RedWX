@@ -20,7 +20,7 @@ import { InvalidArgumentError, program as program$1, Option } from 'commander';
 import fs$1 from 'fs';
 
 var name = "red-wx";
-var version = "0.0.2";
+var version = "0.1.0";
 var description = "微信读书桌面客户端，基于 Tauri。";
 var author = {
 	name: "Tw93",

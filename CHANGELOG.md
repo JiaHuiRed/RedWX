@@ -15,6 +15,17 @@
 - **平台分支清理**：移除 `window.rs` 中 macOS title bar / Linux fullscreen / proxy 分支，统一 Windows browser args 和 scale-factor-aware 窗口尺寸（`src-tauri/src/app/window.rs`）
 - **冗余文件清理**：移除 `src/app/menu.rs`、`src-tauri/tauri.linux.conf.json`、`src-tauri/tauri.macos.conf.json`、`src-tauri/Info.plist`、`src-tauri/entitlements.plist`、`tests/unit/new-window-macos.test.js`
 
+### 修复
+
+- **交通灯按钮无响应**：`tauri.conf.json` 中 `withGlobalTauri` 误改为 `false` 导致 `window.__TAURI__` 未注入，恢复为 `true` 后交通灯关闭/最小化/最大化恢复正常（`src-tauri/tauri.conf.json`）
+- **窗口无法拖拽**：`style.js` 的样式注入逻辑包在 `DOMContentLoaded` 内，若脚本执行时 DOM 已就绪则不会触发，重构为 `injectPakeStyles()` + `document.readyState` 判断，确保拖拽区域和交通灯按钮始终注入（`src-tauri/src/inject/style.js`）
+- **窗口控制 API 空指针崩溃**：`event.js` 中 `appWindow` 未判空直接调用 `startDragging()` 等，触发 `TypeError: Cannot read properties of null`，补全空值保护（`src-tauri/src/inject/event.js`）
+- **调试 alert 残留阻断执行**：移除 `event.js` 中所有调试 `alert()`，避免弹窗阻断事件循环（`src-tauri/src/inject/event.js`）
+
+### 新增
+
+- **版本号显示**：交通灯右侧新增 `v0.1.0` 版本标签，来源 `window.pakeConfig.version`（`src-tauri/src/inject/style.js`）
+
 ---
 
 ## [0.0.3] - 2026-06-26

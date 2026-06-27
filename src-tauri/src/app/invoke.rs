@@ -7,9 +7,6 @@ use tauri::http::Method;
 use tauri::{command, AppHandle, Manager, Url, WebviewWindow};
 use tauri_plugin_http::reqwest::{ClientBuilder, Request};
 
-#[cfg(target_os = "macos")]
-use tauri::Theme;
-
 static BADGE_COUNT: AtomicI64 = AtomicI64::new(0);
 const MAX_BADGE_COUNT: i64 = 99_999;
 const MAX_BADGE_LABEL_CHARS: usize = 16;
@@ -37,25 +34,6 @@ fn apply_badge(app: &AppHandle, count: Option<i64>) -> Result<(), String> {
     apply_badge_label(app, label.as_deref())
 }
 
-#[cfg(target_os = "macos")]
-fn apply_badge_label(app: &AppHandle, label: Option<&str>) -> Result<(), String> {
-    use objc2::MainThreadMarker;
-    use objc2_app_kit::NSApplication;
-    use objc2_foundation::NSString;
-
-    let label = label.map(str::to_owned);
-    app.run_on_main_thread(move || {
-        let Some(mtm) = MainThreadMarker::new() else {
-            return;
-        };
-        let dock_tile = NSApplication::sharedApplication(mtm).dockTile();
-        let ns_label = label.as_deref().map(NSString::from_str);
-        dock_tile.setBadgeLabel(ns_label.as_deref());
-    })
-    .map_err(|e| format!("Failed to dispatch dock badge update: {e}"))
-}
-
-#[cfg(not(target_os = "macos"))]
 fn apply_badge_label(app: &AppHandle, label: Option<&str>) -> Result<(), String> {
     let window = app
         .get_webview_window("pake")
@@ -230,24 +208,7 @@ pub fn set_dock_badge_label(app: AppHandle, label: Option<String>) -> Result<(),
 }
 
 #[command]
-pub async fn update_theme_mode(app: AppHandle, mode: String) {
-    #[cfg(target_os = "macos")]
-    {
-        if let Some(window) = app.get_webview_window("pake") {
-            let theme = if mode == "dark" {
-                Theme::Dark
-            } else {
-                Theme::Light
-            };
-            let _ = window.set_theme(Some(theme));
-        }
-    }
-    #[cfg(not(target_os = "macos"))]
-    {
-        let _ = app;
-        let _ = mode;
-    }
-}
+pub async fn update_theme_mode(_app: AppHandle, _mode: String) {}
 
 #[command]
 #[allow(unreachable_code)]

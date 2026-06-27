@@ -272,11 +272,49 @@ function shouldBypassPakeLinkHandling(rawHref) {
   );
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+// Run init immediately - initialization_script executes after DOM is ready
+(async () => {
+  await init();
+})();
+
+async function waitForBody() {
+  while (!document.body) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+}
+
+async function init() {
+  await waitForBody();
+  // Debug panel
+  const debugDiv = document.createElement("div");
+  debugDiv.id = "redwx-debug";
+  debugDiv.style.cssText = "position:fixed;bottom:10px;right:10px;background:rgba(0,0,0,0.8);color:#0f0;padding:8px;font-family:monospace;font-size:12px;z-index:999999;max-width:400px;word-break:break-all;";
+  document.body.appendChild(debugDiv);
+  const debug = (msg) => { debugDiv.textContent = msg; console.log("[RedWX-DEBUG]", msg); };
+
   const tauri = window.__TAURI__;
-  const appWindow = tauri.window.getCurrentWindow();
-  const invoke = tauri.core.invoke;
+  console.log("[RedWX] __TAURI__:", tauri ? "yes" : "no");
+  debug("__TAURI__: " + (tauri ? "yes" : "no"));
+  if (tauri) {
+    debug("keys: " + Object.keys(tauri).join(","));
+  }
+  const invoke = tauri?.core?.invoke;
   const pakeConfig = window["pakeConfig"] || {};
+  let appWindow = null;
+  if (tauri?.window?.getCurrentWindow) {
+    try {
+      appWindow = await tauri.window.getCurrentWindow();
+      console.log("[RedWX] getCurrentWindow: ok");
+      debug("getCurrentWindow: ok");
+    } catch (err) {
+      console.log("[RedWX] getCurrentWindow ERROR:", err.message);
+      debug("getCurrentWindow ERROR: " + err.message);
+    }
+  } else {
+    console.log("[RedWX] getCurrentWindow: not available");
+    debug("getCurrentWindow: not available");
+  }
+  console.log("[RedWX] init complete, appWindow:", appWindow ? "ok" : "null");
   const forceInternalNavigation = pakeConfig.force_internal_navigation === true;
   const internalUrlRegex = pakeConfig.internal_url_regex || "";
   let internalUrlPattern = null;
@@ -297,18 +335,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const domEl = document.getElementById("pake-top-dom");
 
   domEl.addEventListener("touchstart", () => {
-    appWindow.startDragging();
+    console.log("[RedWX] touchstart drag");
+    if (appWindow) appWindow.startDragging();
   });
 
   domEl.addEventListener("mousedown", (e) => {
-    e.preventDefault();
-    if (e.buttons === 1 && e.detail !== 2) {
+    console.log("[RedWX] mousedown, buttons:", e.buttons, "detail:", e.detail);
+    if (e.buttons === 1 && e.detail !== 2 && appWindow) {
+      console.log("[RedWX] dragging");
       appWindow.startDragging();
     }
   });
 
   domEl.addEventListener("dblclick", () => {
+    console.log("[RedWX] dblclick");
+    if (!appWindow) return;
     appWindow.isFullscreen().then((fullscreen) => {
+      console.log("[RedWX] fullscreen:", fullscreen);
       appWindow.setFullscreen(!fullscreen);
     });
   });
@@ -316,46 +359,71 @@ document.addEventListener("DOMContentLoaded", () => {
   // macOS-style traffic light button handlers for Windows
   const isWindows = /windows/i.test(navigator.userAgent);
   if (isWindows && pakeConfig?.hide_title_bar) {
-    const trafficLights = document.getElementById("pake-traffic-lights");
-    if (trafficLights) {
-      const closeBtn = trafficLights.querySelector(".close");
-      const minimizeBtn = trafficLights.querySelector(".minimize");
-      const maximizeBtn = trafficLights.querySelector(".maximize");
-
-      closeBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        appWindow.close();
-      });
-
-      minimizeBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        appWindow.minimize();
-      });
-
-      maximizeBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        appWindow.toggleMaximize();
-      });
-
-      // Update maximize button icon based on window state
-      function updateMaximizeState() {
-        appWindow.isMaximized().then((maximized) => {
-          maximizeBtn.title = maximized ? "Restore" : "Maximize";
-        });
+    const getAppWindow = async () => {
+      if (appWindow) return appWindow;
+      if (tauri?.window?.getCurrentWindow) {
+        try {
+          appWindow = await tauri.window.getCurrentWindow();
+        } catch (_) {}
       }
+      return appWindow;
+    };
 
-      // Update state on focus and periodically
-      window.addEventListener("focus", updateMaximizeState);
-      updateMaximizeState();
+    const handleTrafficLightClick = async (e) => {
+      const trafficLight = e.target.closest("#pake-traffic-lights .traffic-light");
+      console.log("[RedWX] traffic light click, target:", e.target.className, "trafficLight:", trafficLight ? "yes" : "no");
+      if (!trafficLight) return;
 
-      // Window active/inactive state for traffic light appearance
-      window.addEventListener("focus", () => {
-        trafficLights.classList.remove("inactive");
+      const win = await getAppWindow();
+      if (!win) return;
+
+      try {
+        if (trafficLight.classList.contains("close")) {
+          console.log("[RedWX] close");
+          win.close();
+        } else if (trafficLight.classList.contains("minimize")) {
+          console.log("[RedWX] minimize");
+          win.minimize();
+        } else if (trafficLight.classList.contains("maximize")) {
+          console.log("[RedWX] maximize");
+          const isMaximized = await win.isMaximized();
+          if (isMaximized) {
+            win.unmaximize();
+          } else {
+            win.maximize();
+          }
+        }
+      } catch (error) {
+        console.error("[RedWX] Traffic light action failed:", error);
+      }
+    };
+
+    document.addEventListener("click", handleTrafficLightClick, true);
+    console.log("[RedWX] Traffic light click listener attached");
+
+    // Update maximize state
+    const updateMaximizeState = async () => {
+      const maximizeBtn = document.querySelector("#pake-traffic-lights .maximize");
+      if (!maximizeBtn) return;
+      const win = await getAppWindow();
+      if (!win) return;
+      win.isMaximized().then((maximized) => {
+        maximizeBtn.title = maximized ? "Restore" : "Maximize";
       });
-      window.addEventListener("blur", () => {
-        trafficLights.classList.add("inactive");
-      });
-    }
+    };
+
+    window.addEventListener("focus", updateMaximizeState);
+    updateMaximizeState();
+
+    // Window active/inactive state for traffic light appearance
+    window.addEventListener("focus", () => {
+      const trafficLights = document.getElementById("pake-traffic-lights");
+      if (trafficLights) trafficLights.classList.remove("inactive");
+    });
+    window.addEventListener("blur", () => {
+      const trafficLights = document.getElementById("pake-traffic-lights");
+      if (trafficLights) trafficLights.classList.add("inactive");
+    });
   }
 
   if (window["pakeConfig"]?.disabled_web_shortcuts !== true) {
@@ -1068,7 +1136,7 @@ document.addEventListener("DOMContentLoaded", () => {
       hideContextMenu();
     }
   });
-});
+}
 
 // Bridge the Web Notification + Web Badging APIs to Pake's Rust commands so
 // pages running inside the webview can drive the macOS dock badge (and

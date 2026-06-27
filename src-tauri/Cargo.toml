@@ -1,6 +1,6 @@
 [package]
 name = "red-wx"
-version = "0.0.2"
+version = "0.1.0"
 description = "微信读书桌面客户端，基于 Tauri。"
 authors = ["RedCode"]
 license = "MIT"
@@ -25,7 +25,6 @@ tauri = { version = "2.10.2", features = [
   "tray-icon",
   "image-ico",
   "image-png",
-  "macos-proxy",
 ] }
 tauri-plugin-window-state = "2.4.1"
 tauri-plugin-oauth = "2.0.0"
@@ -36,10 +35,6 @@ tauri-plugin-opener = { version = "2.5.3" }
 tauri-plugin-single-instance = "2.4.0"
 tauri-plugin-notification = "2.3.3"
 
-[target.'cfg(target_os = "macos")'.dependencies]
-objc2 = "0.6"
-objc2-app-kit = { version = "0.3", features = ["NSApplication", "NSDockTile"] }
-objc2-foundation = { version = "0.3", features = ["NSString"] }
 
 [features]
 # this feature is used for development builds from development cli

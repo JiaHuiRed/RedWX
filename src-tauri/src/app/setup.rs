@@ -14,7 +14,6 @@ pub fn set_system_tray(
     app: &AppHandle,
     show_system_tray: bool,
     tray_icon_path: &str,
-    _init_fullscreen: bool,
     allow_multi_window: bool,
 ) -> tauri::Result<()> {
     if !show_system_tray {
@@ -53,11 +52,6 @@ pub fn set_system_tray(
             "show_app" => {
                 if let Some(window) = app.get_webview_window("pake") {
                     let _ = window.show();
-                    #[cfg(target_os = "linux")]
-                    if _init_fullscreen && !window.is_fullscreen().unwrap_or(false) {
-                        let _ = window.set_fullscreen(true);
-                        let _ = window.set_focus();
-                    }
                 }
             }
             "quit" => {
@@ -71,16 +65,12 @@ pub fn set_system_tray(
                 if button == tauri::tray::MouseButton::Left {
                     if let Some(window) = tray.app_handle().get_webview_window("pake") {
                         let is_visible = window.is_visible().unwrap_or(false);
-                        if is_visible {
-                            let _ = window.hide();
-                        } else {
-                            let _ = window.show();
-                            let _ = window.set_focus();
-                            #[cfg(target_os = "linux")]
-                            if _init_fullscreen && !window.is_fullscreen().unwrap_or(false) {
-                                let _ = window.set_fullscreen(true);
-                            }
-                        }
+                    if is_visible {
+                        let _ = window.hide();
+                    } else {
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                    }
                     }
                 }
             }
@@ -110,7 +100,6 @@ pub fn set_system_tray(
 pub fn set_global_shortcut(
     app: &AppHandle,
     shortcut: String,
-    _init_fullscreen: bool,
 ) -> tauri::Result<()> {
     if shortcut.is_empty() {
         return Ok(());
@@ -147,10 +136,6 @@ pub fn set_global_shortcut(
                             } else {
                                 let _ = window.show();
                                 let _ = window.set_focus();
-                                #[cfg(target_os = "linux")]
-                                if _init_fullscreen && !window.is_fullscreen().unwrap_or(false) {
-                                    let _ = window.set_fullscreen(true);
-                                }
                             }
                         }
                     }
