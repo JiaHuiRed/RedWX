@@ -7,7 +7,7 @@
 > **一键打包网页为轻量桌面应用，支持 macOS / Windows / Linux。**
 > 作者：Red · 基于 [tw93/Pake](https://github.com/tw93/Pake) (Tauri) 二次开发。
 
-[![版本](https://img.shields.io/badge/版本-v0.1.0-blue)](CHANGELOG.md)
+[![版本](https://img.shields.io/badge/版本-v0.1.1-blue)](CHANGELOG.md)
 [![许可证](https://img.shields.io/badge/许可证-MIT-lightgrey)](LICENSE)
 [![平台](https://img.shields.io/badge/平台-macOS%20%7C%20Windows%20%7C%20Linux-0078d4)](https://github.com/tw93/Pake)
 [![Tauri](https://img.shields.io/badge/Tauri-2.x-ffc131)](https://tauri.app)
