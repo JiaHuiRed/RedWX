@@ -6,6 +6,17 @@
 
 ---
 
+## [0.1.0] - 2026-06-27
+
+### 重构
+
+- **Windows-only 重构**：移除所有 macOS/Linux 平台代码和配置文件，统一为 Windows 单一平台（`src-tauri/src/app/window.rs`、`src-tauri/src/app/config.rs`、`src-tauri/src/app/setup.rs`、`src-tauri/src/lib.rs`）
+- **配置结构简化**：`PlatformSpecific<T>` 扁平成直接字段，`pake.json` 移除 `macos`/`linux` 分支，`user_agent` 和 `system_tray` 改为单值（`src-tauri/src/app/config.rs`、`src-tauri/pake.json`）
+- **平台分支清理**：移除 `window.rs` 中 macOS title bar / Linux fullscreen / proxy 分支，统一 Windows browser args 和 scale-factor-aware 窗口尺寸（`src-tauri/src/app/window.rs`）
+- **冗余文件清理**：移除 `src/app/menu.rs`、`src-tauri/tauri.linux.conf.json`、`src-tauri/tauri.macos.conf.json`、`src-tauri/Info.plist`、`src-tauri/entitlements.plist`、`tests/unit/new-window-macos.test.js`
+
+---
+
 ## [0.0.3] - 2026-06-26
 
 ### 修复
