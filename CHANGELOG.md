@@ -10,6 +10,10 @@
 
 ### 修复
 
+- **构建环境修复**：
+  - `rust-toolchain.toml` 中 `components` 字段替代默认组件导致 rustc/cargo 缺失，改 channel 为 `stable` 恢复完整工具链
+  - 多核编译触发 pagefile 溢出（error 1455），`build.bat` 添加 `CARGO_BUILD_JOBS=4` 限流
+  - USTC 镜像缓存损坏导致 195 个编译假错（semver/quote/strsim 等基础 crate），清空 registry 缓存后恢复镜像（`~/.cargo/config.toml`、`rust-toolchain.toml`、`build.bat`）
 - **调试浮层残留**：`event.js` 的 `redwx-debug` div 默认可见且 `debug()` 写入 DOM，导致右下角持续显示 `getCurrentWindow: ok`，改为 `display:none` + 仅 `console.log`，消除运行时视觉干扰（`src-tauri/src/inject/event.js`）
 
 ### 变更

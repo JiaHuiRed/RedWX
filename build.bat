@@ -49,7 +49,20 @@ taskkill /F /IM red-wx.exe >nul 2>nul
 :: Build Tauri app (exe only, skip installer bundling to avoid WiX timeout)
 echo.
 echo [3/3] Building Tauri app...
-call "C:\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+
+:: Auto-detect Visual Studio installation path via vswhere
+for /f "usebackq tokens=*" %%i in (`"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do set "VS_PATH=%%i"
+if "%VS_PATH%"=="" (
+    echo [ERROR] Visual Studio not found. Install Visual Studio Build Tools first.
+    pause
+    exit /b 1
+)
+echo   Visual Studio: %VS_PATH%
+call "%VS_PATH%\VC\Auxiliary\Build\vcvars64.bat"
+
+:: Limit Rust compiler parallelism to avoid pagefile exhaustion (1455)
+set CARGO_BUILD_JOBS=4
+
 call pnpm run build --no-bundle
 if errorlevel 1 (
     echo [ERROR] Tauri build failed
