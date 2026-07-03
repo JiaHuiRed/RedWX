@@ -288,9 +288,9 @@ async function init() {
   // Debug panel
   const debugDiv = document.createElement("div");
   debugDiv.id = "redwx-debug";
-  debugDiv.style.cssText = "position:fixed;bottom:10px;right:10px;background:rgba(0,0,0,0.8);color:#0f0;padding:8px;font-family:monospace;font-size:12px;z-index:999999;max-width:400px;word-break:break-all;";
+  debugDiv.style.cssText = "position:fixed;bottom:10px;right:10px;background:rgba(0,0,0,0.8);color:#0f0;padding:8px;font-family:monospace;font-size:12px;z-index:999999;max-width:400px;word-break:break-all;display:none;";
   document.body.appendChild(debugDiv);
-  const debug = (msg) => { debugDiv.textContent = msg; console.log("[RedWX-DEBUG]", msg); };
+  const debug = (msg) => { console.log("[RedWX-DEBUG]", msg); };
 
   const tauri = window.__TAURI__;
   console.log("[RedWX] __TAURI__:", tauri ? "yes" : "no");

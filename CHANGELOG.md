@@ -6,6 +6,18 @@
 
 ---
 
+## [0.1.1] - 2026-07-03
+
+### 修复
+
+- **调试浮层残留**：`event.js` 的 `redwx-debug` div 默认可见且 `debug()` 写入 DOM，导致右下角持续显示 `getCurrentWindow: ok`，改为 `display:none` + 仅 `console.log`，消除运行时视觉干扰（`src-tauri/src/inject/event.js`）
+
+### 变更
+
+- **应用图标替换**：将 Windows 打包图标从 `weekly_*.ico` 切换为 📖 书本 emoji 生成的 `book_256.ico` / `book_32.ico`，更新 `tauri.windows.conf.json` 的 icon 与 resources 字段（`src-tauri/tauri.windows.conf.json`、`src-tauri/png/book_*.ico`）
+
+---
+
 ## [0.1.0] - 2026-06-27
 
 ### 重构
