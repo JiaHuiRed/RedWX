@@ -1,11 +1,13 @@
 <h4 align="right"><a href="README.md">简体中文</a> | <strong>English</strong></h4>
-<p align="center">
-    <img src="https://gw.alipayobjects.com/zos/k/fa/logo-modified.png" width="100">
-</p>
-<h1 align="center">RedWX</h1>
-<p align="center"><em>WeRead desktop client, built with Tauri.</em></p>
-<div align="center">
-    <a href="https://img.shields.io/badge/版本-v0.1.1-blue" target="_blank">
+ <p align="center">
+     <img src="docs/logo.svg" alt="RedWX" width="100">
+ </p>
+ <h1 align="center">RedWX</h1>
+ <p align="center"><em>WeRead desktop client, built with Tauri.</em></p>
+ <div align="center">
+     <a href="https://img.shields.io/badge/version-v0.1.1-blue" target="_blank">
+     <img alt="version" src="https://img.shields.io/badge/version-v0.1.1-blue"></a>
+     <a href="https://img.shields.io/badge/license-MIT-lightgrey" target="_blank">
     <img alt="version" src="https://img.shields.io/badge/version-v0.1.1-blue"></a>
     <a href="https://img.shields.io/badge/license-MIT-lightgrey" target="_blank">
     <img alt="license" src="https://img.shields.io/badge/license-MIT-lightgrey"></a>

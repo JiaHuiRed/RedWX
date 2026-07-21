@@ -1,16 +1,16 @@
 # 📖 RedWX
 
-<p align="center">
-  <img src="https://gw.alipayobjects.com/zos/k/fa/logo-modified.png" width="100">
-</p>
+ <p align="center">
+   <img src="docs/logo.svg" alt="RedWX" width="120">
+ </p>
 
-> _微信读书桌面客户端，基于 Tauri 二次开发。_
+ > _微信读书桌面客户端，基于 Tauri 二次开发。_
 
-[![版本](https://img.shields.io/badge/版本-v0.1.1-blue)](CHANGELOG.md)
-[![许可证](https://img.shields.io/badge/许可证-MIT-lightgrey)](LICENSE)
-[![平台](https://img.shields.io/badge/平台-Windows-0078d4)]
-[![Tauri](https://img.shields.io/badge/Tauri-2.x-ffc131)](https://tauri.app)
-[![Rust](https://img.shields.io/badge/Rust-1.85+-ce422b)](https://rust-lang.org)
+ [![版本](https://img.shields.io/badge/版本-v0.1.1-blue)](CHANGELOG.md)
+ [![许可证](https://img.shields.io/badge/许可证-MIT-lightgrey)](LICENSE)
+ [![平台](https://img.shields.io/badge/平台-Windows-0078d4)]
+ [![Tauri](https://img.shields.io/badge/Tauri-2.x-ffc131)](https://tauri.app)
+ [![Rust](https://img.shields.io/badge/Rust-1.85+-ce422b)](https://rust-lang.org)
 
 [English](README.en.md) | **简体中文**
 

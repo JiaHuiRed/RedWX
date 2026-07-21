@@ -1,3 +1,10 @@
-strict-peer-dependencies=false
-node-linker=hoisted
-auto-install-peers=true
+# Suppress npm funding and audit messages during installation
+fund=false
+audit=false
+
+# Resolve sharp version conflicts
+prefer-dedupe=true
+
+# Allow pnpm 11 build scripts for native deps
+allow-builds.esbuild=true
+allow-builds.sharp=true
