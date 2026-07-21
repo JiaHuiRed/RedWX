@@ -6,6 +6,14 @@
 
 ---
 
+## [0.2.0] - 2026-07-21
+
+### 重构
+
+- **CI workflow 重构**：替换 Pake 遗留的多平台 CI 流程为轻量单 job 检查，仅跑依赖安装、前端编译、Rust 格式检查、cargo check，适配 RedWX Windows-only 桌面应用定位（`.github/workflows/quality-and-test.yml`）
+
+---
+
 ## [0.1.2] - 2026-07-21
 
 ### 重构
