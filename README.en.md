@@ -6,7 +6,7 @@
  <p align="center"><em>WeRead desktop client, built with Tauri.</em></p>
  <div align="center">
      <a href="https://img.shields.io/badge/version-v0.1.1-blue" target="_blank">
-     <img alt="version" src="https://img.shields.io/badge/version-v0.1.1-blue"></a>
+    <img alt="version" src="https://img.shields.io/badge/version-v0.1.2-blue"></a>
      <a href="https://img.shields.io/badge/license-MIT-lightgrey" target="_blank">
     <img alt="version" src="https://img.shields.io/badge/version-v0.1.1-blue"></a>
     <a href="https://img.shields.io/badge/license-MIT-lightgrey" target="_blank">

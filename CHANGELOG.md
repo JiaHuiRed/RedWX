@@ -6,6 +6,24 @@
 
 ---
 
+## [0.1.2] - 2026-07-21
+
+### 重构
+
+- **项目身份重构**：从 Pake 工具项目重定位为 RedWX 独立应用，更新 package.json author/repository、README/README.en.md 全量重写、删除 Pake 示例列表 `default_app_list.json`（`package.json`、`README.md`、`README.en.md`）
+
+### 新增
+
+- **自定义应用 logo**：新增 `docs/logo.svg` 红色书本设计，替换 README 中 Pake 原开发者 logo 引用（`docs/logo.svg`、`README.md`、`README.en.md`）
+- **交通灯视觉区分**：为隐藏标题栏模式下的 macOS 风格交通灯按钮添加半透明背景栏 + 模糊效果 + 底部分割线，与页面内容形成视觉区分（`src-tauri/src/inject/style.js`）
+
+### 修复
+
+- **pnpm 构建脚本放行**：`.npmrc` / `.pnpmrc` / `pnpm-workspace.yaml` 添加 `allowBuilds.esbuild=true` 和 `allowBuilds.sharp=true`，解决 pnpm 11 默认忽略原生依赖构建脚本导致的 `ERR_PNPM_IGNORED_BUILDS` 错误
+- **PE 导出符号超限**：将 Rust 工具链从 `stable-x86_64-pc-windows-msvc` 切换为 `1.95.0-x86_64-pc-windows-gnu`，规避 DLL 导出符号 65535 上限导致的 `export ordinal too large` 链接错误（`rust-toolchain.toml`）
+
+---
+
 ## [0.1.1] - 2026-07-03
 
 ### 修复
