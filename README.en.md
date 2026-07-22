@@ -5,10 +5,10 @@
  <h1 align="center">RedWX</h1>
  <p align="center"><em>WeRead desktop client, built with Tauri.</em></p>
  <div align="center">
-     <a href="https://img.shields.io/badge/version-v0.1.1-blue" target="_blank">
-    <img alt="version" src="https://img.shields.io/badge/version-v0.2.0-blue"></a>
-     <a href="https://img.shields.io/badge/license-MIT-lightgrey" target="_blank">
-    <img alt="version" src="https://img.shields.io/badge/version-v0.1.1-blue"></a>
+     <a href="CHANGELOG.md" target="_blank">
+    <img alt="version" src="https://img.shields.io/badge/version-v0.3.0-blue"></a>
+     <a href="LICENSE" target="_blank">
+    <img alt="license" src="https://img.shields.io/badge/license-MIT-lightgrey"></a>
     <a href="https://img.shields.io/badge/license-MIT-lightgrey" target="_blank">
     <img alt="license" src="https://img.shields.io/badge/license-MIT-lightgrey"></a>
     <a href="https://img.shields.io/badge/platform-Windows-0078d4" target="_blank">
