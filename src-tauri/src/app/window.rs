@@ -258,6 +258,7 @@ fn build_window(
     // calls show_toast().
     window_builder = window_builder
         .initialization_script(&config_script)
+        .initialization_script(include_str!("../inject/badge.js"))
         .initialization_script(include_str!("../inject/find.js"))
         .initialization_script(include_str!("../inject/toast.js"))
         .initialization_script(include_str!("../inject/fullscreen.js"))

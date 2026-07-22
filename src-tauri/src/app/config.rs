@@ -54,9 +54,3 @@ pub struct PakeConfig {
     #[serde(default)]
     pub multi_window: bool,
 }
-
-impl PakeConfig {
-    pub fn show_system_tray(&self) -> bool {
-        self.system_tray
-    }
-}

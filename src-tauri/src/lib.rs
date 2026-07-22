@@ -23,7 +23,7 @@ pub fn run_app() {
     let (pake_config, tauri_config) = get_pake_config();
     let tauri_app = tauri::Builder::default();
 
-    let show_system_tray = pake_config.show_system_tray();
+    let show_system_tray = pake_config.system_tray;
     let hide_on_close = pake_config.windows[0].hide_on_close;
     let activation_shortcut = pake_config.windows[0].activation_shortcut.clone();
     let init_fullscreen = pake_config.windows[0].fullscreen;
