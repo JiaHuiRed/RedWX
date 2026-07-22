@@ -88,7 +88,7 @@ pub fn set_system_tray(
     if let Some(icon) = resolved_icon {
         tray_builder = tray_builder.icon(icon);
     } else {
-        eprintln!("[Pake] No tray icon available; tray will build without an icon.");
+        eprintln!("[RedWX] No tray icon available; tray will build without an icon.");
     }
 
     let tray = tray_builder.build(app)?;
@@ -109,7 +109,7 @@ pub fn set_global_shortcut(
     let shortcut_hotkey = match Shortcut::from_str(&shortcut) {
         Ok(s) => s,
         Err(error) => {
-            eprintln!("[Pake] Invalid activation shortcut '{shortcut}': {error}");
+            eprintln!("[RedWX] Invalid activation shortcut '{shortcut}': {error}");
             return Ok(());
         }
     };
@@ -144,13 +144,13 @@ pub fn set_global_shortcut(
             .build(),
     ) {
         eprintln!(
-            "[Pake] Failed to register global shortcut plugin '{shortcut}': {error}; continuing without it."
+            "[RedWX] Failed to register global shortcut plugin '{shortcut}': {error}; continuing without it."
         );
         return Ok(());
     }
 
     if let Err(error) = app.global_shortcut().register(shortcut_hotkey) {
-        eprintln!("[Pake] Failed to bind global shortcut '{shortcut}': {error}");
+        eprintln!("[RedWX] Failed to bind global shortcut '{shortcut}': {error}");
     }
 
     Ok(())

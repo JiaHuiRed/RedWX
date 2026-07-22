@@ -245,7 +245,7 @@ fn build_window(
             ) {
                 Ok(window) => NewWindowResponse::Create { window },
                 Err(error) => {
-                    eprintln!("[Pake] Failed to open requested window: {error}");
+                    eprintln!("[RedWX] Failed to open requested window: {error}");
                     NewWindowResponse::Deny
                 }
             }

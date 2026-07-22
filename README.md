@@ -74,7 +74,7 @@ pnpm run build    # 打包应用
 
 ## 💙 致谢
 
-- 构建者：小宋
-- 基于：[Pake](https://github.com/tw93/Pake) by [Tw93](https://github.com/tw93)
-- 基于：[Tauri](https://tauri.app) (Rust)
-- 许可证：MIT
+- **构建者**：小宋
+- **上游项目**：[Pake](https://github.com/tw93/Pake) by [Tw93](https://github.com/tw93) — RedWX 基于 Pake 的框架二次开发，感谢 Pake 社区提供的优秀的 Tauri 包装方案和技术基础。🙏
+- **框架**：[Tauri](https://tauri.app) (Rust)
+- **许可证**：MIT

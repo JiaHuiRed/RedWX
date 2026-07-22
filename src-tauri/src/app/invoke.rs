@@ -207,6 +207,9 @@ pub fn set_dock_badge_label(app: AppHandle, label: Option<String>) -> Result<(),
     apply_badge_label(&app, label.as_deref())
 }
 
+/// Theme change notification from the page.
+/// Theme is handled via CSS injection in style.js;
+/// this command is reserved for future Tauri-level theme propagation.
 #[command]
 pub async fn update_theme_mode(_app: AppHandle, _mode: String) {}
 

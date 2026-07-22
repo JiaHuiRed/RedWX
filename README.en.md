@@ -79,7 +79,7 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 ## 💙 Credits
 
-- Built by: Xiao Song
-- Based on: [Pake](https://github.com/tw93/Pake) by [Tw93](https://github.com/tw93)
-- Based on: [Tauri](https://tauri.app) (Rust)
-- License: MIT
+- **Built by**: Xiao Song
+- **Upstream project**: [Pake](https://github.com/tw93/Pake) by [Tw93](https://github.com/tw93) — RedWX is built on Pake's framework. Thanks to the Pake community for the excellent Tauri packaging approach and technical foundation. 🙏
+- **Framework**: [Tauri](https://tauri.app) (Rust)
+- **License**: MIT

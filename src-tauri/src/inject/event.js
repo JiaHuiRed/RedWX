@@ -322,7 +322,7 @@ async function init() {
     try {
       internalUrlPattern = new RegExp(internalUrlRegex);
     } catch (e) {
-      console.error("[Pake] Invalid internal_url_regex pattern:", e);
+      console.error("[RedWX] Invalid internal_url_regex pattern:", e);
     }
   }
 
@@ -617,7 +617,7 @@ async function init() {
       try {
         return internalUrlPattern.test(url);
       } catch (e) {
-        console.error("[Pake] Error testing internal_url_regex:", e);
+        console.error("[RedWX] Error testing internal_url_regex:", e);
         // Fall back to domain check on error
         return isSameDomain(url);
       }
@@ -646,7 +646,7 @@ async function init() {
 
       // Keep OAuth/authentication flows inside the app when popup support is enabled.
       if (window.isAuthLink(absoluteUrl)) {
-        console.log("[Pake] Handling OAuth navigation in-app:", absoluteUrl);
+        console.log("[RedWX] Handling OAuth navigation in-app:", absoluteUrl);
 
         if (window.pakeConfig?.new_window) {
           e.preventDefault();

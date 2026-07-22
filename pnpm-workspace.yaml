@@ -1,3 +1,8 @@
 allowBuilds:
   esbuild: true
   sharp: true
+  '@tauri-apps/cli': true
+
+overrides:
+  sharp: ^0.34.5
+  '@img/sharp-libvips-darwin-arm64': '1.2.4'

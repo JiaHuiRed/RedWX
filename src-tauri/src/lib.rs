@@ -124,7 +124,7 @@ pub fn run_app() {
         })
         .build(tauri::generate_context!())
         .unwrap_or_else(|error| {
-            eprintln!("[Pake] Fatal error while building Tauri application: {error}");
+            eprintln!("[RedWX] Fatal error while building Tauri application: {error}");
             std::process::exit(1);
         })
         .run(|_app, _event| {});
