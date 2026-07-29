@@ -202,11 +202,11 @@ function isChineseLanguage(language = getUserLanguage()) {
 function showDownloadError(filename) {
   const isChinese = isChineseLanguage();
   const message = isChinese
-    ? `ä¸‹è½½å¤±è´¥: ${filename}`
+    ? `ÏÂÔØÊ§°Ü: ${filename}`
     : `Download failed: ${filename}`;
 
   if (window.Notification && Notification.permission === "granted") {
-    new Notification(isChinese ? "ä¸‹è½½é”™è¯¯" : "Download Error", {
+    new Notification(isChinese ? "ÏÂÔØ´íÎó" : "Download Error", {
       body: message,
     });
   } else {
@@ -310,11 +310,9 @@ function isInternalUrl(url, internalUrlPattern) {
     try {
       return internalUrlPattern.test(url);
     } catch (e) {
-      } catch (e) {
-        console.error("[RedWX] Invalid internal_url_regex pattern:", e);
-        // Fall back to domain check on error
-        return isSameDomain(url);
-      }
+      console.error("[RedWX] Error testing internal_url_regex:", e);
+      // Fall back to domain check on error
+      return isSameDomain(url);
     }
   }
   // Default to domain-based check
@@ -325,6 +323,9 @@ function isSpecialDownload(url) {
   return ["blob", "data"].some((protocol) => url.startsWith(protocol));
 }
 
+function isDownloadRequired(url, anchorElement, e) {
+  return (
+    anchorElement.download || e.metaKey || e.ctrlKey || isDownloadableFile(url)
   );
 }
 
@@ -489,6 +490,8 @@ function setupNavigationHandlers(
           return originalWindowOpen.call(window, absoluteUrl, name, specs);
         }
 
+        handleExternalLink(absoluteUrl, invoke);
+        return null;
       }
 
       return originalWindowOpen.call(window, absoluteUrl, name, specs);
@@ -696,11 +699,11 @@ function buildMenuItems(type, data, invoke) {
   const userLanguage = getUserLanguage();
   const menuTexts = {
     // Media operations
-    downloadImage: isChineseLanguage() ? "ä¸‹è½½å›¾ç‰‡" : "Download Image",
-    downloadVideo: isChineseLanguage() ? "ä¸‹è½½è§†é¢‘" : "Download Video",
-    downloadFile: isChineseLanguage() ? "ä¸‹è½½æ–‡ä»¶" : "Download File",
-    copyAddress: isChineseLanguage() ? "å¤åˆ¶åœ°å€" : "Copy Address",
-    openInBrowser: isChineseLanguage() ? "æµè§ˆå™¨æ‰“å¼€" : "Open in Browser",
+    downloadImage: isChineseLanguage() ? "ÏÂÔØÍ¼Æ¬" : "Download Image",
+    downloadVideo: isChineseLanguage() ? "ÏÂÔØÊÓÆµ" : "Download Video",
+    downloadFile: isChineseLanguage() ? "ÏÂÔØÎÄ¼þ" : "Download File",
+    copyAddress: isChineseLanguage() ? "¸´ÖÆµØÖ·" : "Copy Address",
+    openInBrowser: isChineseLanguage() ? "ä¯ÀÀÆ÷´ò¿ª" : "Open in Browser",
   };
   const items = [];
 
@@ -949,6 +952,349 @@ function setupContextMenu(invoke) {
   });
 }
 
+async function init() {
+  await waitForBody();
+  // Debug panel
+  const debugDiv = document.createElement("div");
+  debugDiv.id = "redwx-debug";
+  debugDiv.style.cssText = "position:fixed;bottom:10px;right:10px;background:rgba(0,0,0,0.8);color:#0f0;padding:8px;font-family:monospace;font-size:12px;z-index:999999;max-width:400px;word-break:break-all;display:none;";
+  document.body.appendChild(debugDiv);
+  const debug = (msg) => { console.log("[RedWX-DEBUG]", msg); };
+
+  const tauri = window.__TAURI__;
+  console.log("[RedWX] __TAURI__:", tauri ? "yes" : "no");
+  debug("__TAURI__: " + (tauri ? "yes" : "no"));
+  if (tauri) {
+    debug("keys: " + Object.keys(tauri).join(","));
+  }
+  const invoke = tauri?.core?.invoke;
+  const pakeConfig = window["pakeConfig"] || {};
+  let appWindow = null;
+  if (tauri?.window?.getCurrentWindow) {
+    try {
+      appWindow = await tauri.window.getCurrentWindow();
+      console.log("[RedWX] getCurrentWindow: ok");
+      debug("getCurrentWindow: ok");
+    } catch (err) {
+      console.log("[RedWX] getCurrentWindow ERROR:", err.message);
+      debug("getCurrentWindow ERROR: " + err.message);
+    }
+  } else {
+    console.log("[RedWX] getCurrentWindow: not available");
+    debug("getCurrentWindow: not available");
+  }
+  console.log("[RedWX] init complete, appWindow:", appWindow ? "ok" : "null");
+  const forceInternalNavigation = pakeConfig.force_internal_navigation === true;
+  const internalUrlRegex = pakeConfig.internal_url_regex || "";
+  let internalUrlPattern = null;
+  if (internalUrlRegex) {
+    try {
+      internalUrlPattern = new RegExp(internalUrlRegex);
+    } catch (e) {
+      console.error("[RedWX] Invalid internal_url_regex pattern:", e);
+    }
+  }
+
+  if (!document.getElementById("pake-top-dom")) {
+    const topDom = document.createElement("div");
+    topDom.id = "pake-top-dom";
+    document.body.appendChild(topDom);
+  }
+
+  const domEl = document.getElementById("pake-top-dom");
+
+  domEl.addEventListener("touchstart", () => {
+    console.log("[RedWX] touchstart drag");
+    if (appWindow) appWindow.startDragging();
+  });
+
+  domEl.addEventListener("mousedown", (e) => {
+    console.log("[RedWX] mousedown, buttons:", e.buttons, "detail:", e.detail);
+    if (e.buttons === 1 && e.detail !== 2 && appWindow) {
+      console.log("[RedWX] dragging");
+      appWindow.startDragging();
+    }
+  });
+
+  domEl.addEventListener("dblclick", () => {
+    console.log("[RedWX] dblclick");
+    if (!appWindow) return;
+    appWindow.isFullscreen().then((fullscreen) => {
+      console.log("[RedWX] fullscreen:", fullscreen);
+      appWindow.setFullscreen(!fullscreen);
+    });
+  });
+
+  // macOS-style traffic light button handlers for Windows
+  const isWindows = /windows/i.test(navigator.userAgent);
+  if (isWindows && pakeConfig?.hide_title_bar) {
+    const getAppWindow = async () => {
+      if (appWindow) return appWindow;
+      if (tauri?.window?.getCurrentWindow) {
+        try {
+          appWindow = await tauri.window.getCurrentWindow();
+        } catch (err) {
+          console.debug("[RedWX] getCurrentWindow fallback failed:", err);
+        }
+      }
+      return appWindow;
+    };
+
+    const handleTrafficLightClick = async (e) => {
+      const trafficLight = e.target.closest("#pake-traffic-lights .traffic-light");
+      console.log("[RedWX] traffic light click, target:", e.target.className, "trafficLight:", trafficLight ? "yes" : "no");
+      if (!trafficLight) return;
+
+      const win = await getAppWindow();
+      if (!win) return;
+
+      try {
+        if (trafficLight.classList.contains("close")) {
+          console.log("[RedWX] close");
+          win.close();
+        } else if (trafficLight.classList.contains("minimize")) {
+          console.log("[RedWX] minimize");
+          win.minimize();
+        } else if (trafficLight.classList.contains("maximize")) {
+          console.log("[RedWX] maximize");
+          const isMaximized = await win.isMaximized();
+          if (isMaximized) {
+            win.unmaximize();
+          } else {
+            win.maximize();
+          }
+        }
+      } catch (error) {
+        console.error("[RedWX] Traffic light action failed:", error);
+      }
+    };
+
+    document.addEventListener("click", handleTrafficLightClick, true);
+    console.log("[RedWX] Traffic light click listener attached");
+
+    // Update maximize state
+    const updateMaximizeState = async () => {
+      const maximizeBtn = document.querySelector("#pake-traffic-lights .maximize");
+      if (!maximizeBtn) return;
+      const win = await getAppWindow();
+      if (!win) return;
+      win.isMaximized().then((maximized) => {
+        maximizeBtn.title = maximized ? "Restore" : "Maximize";
+      });
+    };
+
+    window.addEventListener("focus", updateMaximizeState);
+    updateMaximizeState();
+
+    // Window active/inactive state for traffic light appearance
+    window.addEventListener("focus", () => {
+      const trafficLights = document.getElementById("pake-traffic-lights");
+      if (trafficLights) trafficLights.classList.remove("inactive");
+    });
+    window.addEventListener("blur", () => {
+      const trafficLights = document.getElementById("pake-traffic-lights");
+      if (trafficLights) trafficLights.classList.add("inactive");
+    });
+  }
+
+  if (window["pakeConfig"]?.disabled_web_shortcuts !== true) {
+    document.addEventListener("keyup", (event) => {
+      if (/windows|linux/i.test(navigator.userAgent) && event.ctrlKey) {
+        handleShortcut(event);
+      }
+      if (/macintosh|mac os x/i.test(navigator.userAgent) && event.metaKey) {
+        handleShortcut(event);
+      }
+    });
+  }
+
+  document.addEventListener(
+    "paste",
+    (event) => {
+      if (pasteAsPlainTextPending) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        const text = event.clipboardData?.getData("text/plain") || "";
+        if (text) {
+          document.execCommand("insertText", false, text);
+        }
+      }
+    },
+    true,
+  );
+
+  collectUrlToBlobs();
+  detectDownloadByCreateAnchor(invoke);
+
+  setupNavigationHandlers(forceInternalNavigation, internalUrlPattern, invoke);
+  setupContextMenu(invoke);
+
+  // Set the default zoom, There are problems with Loop without using try-catch.
+  try {
+    setDefaultZoom();
+  } catch (e) {
+    console.log(e);
+  }
+
+  // Fix Chinese input method "Enter" on Safari
+  document.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.key === "Process") e.stopPropagation();
+    },
+    true,
+  );
+}
+
+// Bridge the Web Notification + Web Badging APIs to Pake's Rust commands so
+// pages running inside the webview can drive the macOS dock badge (and
+// taskbar badge on Linux/Windows). Installs synchronously instead of waiting
+// for DOMContentLoaded so feature-detection on Notification/setAppBadge
+// returns the polyfill before site scripts run.
+(function () {
+  const invoke = window.__TAURI__?.core?.invoke;
+  if (!invoke) return;
+
+  let permVal = "granted";
+  let lastNotifTime = 0;
+  let lastNotif = null;
+  // Pages that drive the badge directly via setAppBadge own its lifecycle;
+  // notifications-driven counts auto-clear on the next user interaction.
+  let pageManagedBadge = false;
+  let autoBadgeActive = false;
+
+  const normalizeBadgeCount = (count) => {
+    if (typeof count !== "number" || !Number.isFinite(count)) {
+      throw new TypeError("Badge count must be a finite number.");
+    }
+    const normalized = Math.floor(count);
+    return normalized > 0 ? Math.min(normalized, 99999) : null;
+  };
+  const setBadge = (count) => {
+    pageManagedBadge = true;
+    autoBadgeActive = false;
+    return invoke("set_dock_badge", { count }).catch((err) => {
+      console.warn("[RedWX] set_dock_badge failed:", err);
+    });
+  };
+  const clearBadge = () =>
+    invoke("clear_dock_badge").catch((err) => {
+      console.warn("[RedWX] clear_dock_badge failed:", err);
+    });
+  const setLabel = (label) => {
+    pageManagedBadge = true;
+    autoBadgeActive = false;
+    return invoke("set_dock_badge_label", { label }).catch((err) => {
+      console.warn("[RedWX] set_dock_badge_label failed:", err);
+    });
+  };
+  const incrementAutoBadge = () => {
+    if (pageManagedBadge) return Promise.resolve();
+    autoBadgeActive = true;
+    return invoke("increment_dock_badge").catch((err) => {
+      console.warn("[RedWX] increment_dock_badge failed:", err);
+    });
+  };
+
+  window.addEventListener("focus", () => {
+    if (lastNotif?.onclick && Date.now() - lastNotifTime < 5000) {
+      lastNotif.onclick(new Event("click"));
+      lastNotif = null;
+    }
+  });
+
+  const clearAutoBadge = () => {
+    if (pageManagedBadge || !autoBadgeActive) return;
+    autoBadgeActive = false;
+    clearBadge();
+  };
+  document.addEventListener("click", clearAutoBadge, true);
+  document.addEventListener("keydown", clearAutoBadge, true);
+
+  const wrappedNotification = function (title, options) {
+    const body = options?.body || "";
+    let icon = options?.icon || "";
+    if (icon.startsWith("/")) {
+      icon = window.location.origin + icon;
+    }
+
+    const notif = {
+      onclick: null,
+      onclose: null,
+      onshow: null,
+      onerror: null,
+      close: () => {},
+    };
+
+    lastNotifTime = Date.now();
+    lastNotif = notif;
+    invoke("send_notification", { params: { title, body, icon } })
+      .then(() => incrementAutoBadge())
+      .then(() => {
+        if (notif.onshow) notif.onshow(new Event("show"));
+      });
+
+    return notif;
+  };
+
+  wrappedNotification.requestPermission = async () => "granted";
+  Object.defineProperty(wrappedNotification, "permission", {
+    enumerable: true,
+    get: () => permVal,
+    set: (v) => {
+      permVal = v;
+    },
+  });
+
+  try {
+    Object.defineProperty(window, "Notification", {
+      configurable: true,
+      writable: true,
+      value: wrappedNotification,
+    });
+  } catch (err) {
+    console.warn("[RedWX] Notification polyfill install failed:", err);
+  }
+
+  // Web Badging API: https://wicg.github.io/badging/
+  // setAppBadge() with no argument shows an indicator dot; with a number,
+  // shows the count (0 clears). clearAppBadge() removes the badge entirely.
+  const setAppBadge = (count) => {
+    if (count === undefined) return setLabel("?");
+    let normalized;
+    try {
+      normalized = normalizeBadgeCount(count);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+    if (normalized === null) {
+      pageManagedBadge = false;
+      autoBadgeActive = false;
+      return clearBadge();
+    }
+    return setBadge(normalized);
+  };
+  const clearAppBadge = () => {
+    pageManagedBadge = false;
+    autoBadgeActive = false;
+    return clearBadge();
+  };
+  try {
+    Object.defineProperty(navigator, "setAppBadge", {
+      configurable: true,
+      writable: true,
+      value: setAppBadge,
+    });
+    Object.defineProperty(navigator, "clearAppBadge", {
+      configurable: true,
+      writable: true,
+      value: clearAppBadge,
+    });
+  } catch (err) {
+    console.warn("[RedWX] Badging API polyfill install failed:", err);
+  }
+})();
 
 function setDefaultZoom() {
   const htmlZoom = window.localStorage.getItem("htmlZoom");
@@ -997,5 +1343,3 @@ function getFilenameFromUrl(url) {
     return `image-${timestamp}.png`;
   }
 }
-
-
