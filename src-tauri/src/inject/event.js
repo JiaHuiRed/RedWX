@@ -202,11 +202,11 @@ function isChineseLanguage(language = getUserLanguage()) {
 function showDownloadError(filename) {
   const isChinese = isChineseLanguage();
   const message = isChinese
-    ? `ÏÂÔØÊ§°Ü: ${filename}`
+    ? `ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½: ${filename}`
     : `Download failed: ${filename}`;
 
   if (window.Notification && Notification.permission === "granted") {
-    new Notification(isChinese ? "ÏÂÔØ´íÎó" : "Download Error", {
+    new Notification(isChinese ? "ï¿½ï¿½ï¿½Ø´ï¿½ï¿½ï¿½" : "Download Error", {
       body: message,
     });
   } else {
@@ -310,7 +310,7 @@ function isInternalUrl(url, internalUrlPattern) {
     try {
       return internalUrlPattern.test(url);
     } catch (e) {
-      console.error("[RedWX] Error testing internal_url_regex:", e);
+      console.error("[RedWX] Invalid internal_url_regex pattern:", e);
       // Fall back to domain check on error
       return isSameDomain(url);
     }
@@ -323,9 +323,121 @@ function isSpecialDownload(url) {
   return ["blob", "data"].some((protocol) => url.startsWith(protocol));
 }
 
+<<<<<<< HEAD
 function isDownloadRequired(url, anchorElement, e) {
   return (
     anchorElement.download || e.metaKey || e.ctrlKey || isDownloadableFile(url)
+=======
+  const domEl = document.getElementById("pake-top-dom");
+
+  domEl.addEventListener("touchstart", () => {
+    if (appWindow) appWindow.startDragging();
+  });
+
+  domEl.addEventListener("mousedown", (e) => {
+    if (e.buttons === 1 && e.detail !== 2 && appWindow) {
+      appWindow.startDragging();
+    }
+  });
+
+  domEl.addEventListener("dblclick", () => {
+    if (!appWindow) return;
+    appWindow.isFullscreen().then((fullscreen) => {
+      appWindow.setFullscreen(!fullscreen);
+    });
+  });
+
+  // macOS-style traffic light button handlers for Windows
+  const isWindows = /windows/i.test(navigator.userAgent);
+  if (isWindows && pakeConfig?.hide_title_bar) {
+    const getAppWindow = async () => {
+      if (appWindow) return appWindow;
+      if (tauri?.window?.getCurrentWindow) {
+        try {
+          appWindow = await tauri.window.getCurrentWindow();
+        } catch (_) {}
+      }
+      return appWindow;
+    };
+
+    const handleTrafficLightClick = async (e) => {
+      const trafficLight = e.target.closest("#pake-traffic-lights .traffic-light");
+      if (!trafficLight) return;
+
+      const win = await getAppWindow();
+      if (!win) return;
+
+      try {
+        if (trafficLight.classList.contains("close")) {
+          win.close();
+        } else if (trafficLight.classList.contains("minimize")) {
+          win.minimize();
+        } else if (trafficLight.classList.contains("maximize")) {
+          const isMaximized = await win.isMaximized();
+          if (isMaximized) {
+            win.unmaximize();
+          } else {
+            win.maximize();
+          }
+        }
+      } catch (error) {
+        console.error("[RedWX] Traffic light action failed:", error);
+      }
+    };
+
+    document.addEventListener("click", handleTrafficLightClick, true);
+
+    // Update maximize state
+    const updateMaximizeState = async () => {
+      const maximizeBtn = document.querySelector("#pake-traffic-lights .maximize");
+      if (!maximizeBtn) return;
+      const win = await getAppWindow();
+      if (!win) return;
+      win.isMaximized().then((maximized) => {
+        maximizeBtn.title = maximized ? "Restore" : "Maximize";
+      });
+    };
+
+    window.addEventListener("focus", updateMaximizeState);
+    updateMaximizeState();
+
+    // Window active/inactive state for traffic light appearance
+    window.addEventListener("focus", () => {
+      const trafficLights = document.getElementById("pake-traffic-lights");
+      if (trafficLights) trafficLights.classList.remove("inactive");
+    });
+    window.addEventListener("blur", () => {
+      const trafficLights = document.getElementById("pake-traffic-lights");
+      if (trafficLights) trafficLights.classList.add("inactive");
+    });
+  }
+
+  if (window["pakeConfig"]?.disabled_web_shortcuts !== true) {
+    document.addEventListener("keyup", (event) => {
+      if (/windows|linux/i.test(navigator.userAgent) && event.ctrlKey) {
+        handleShortcut(event);
+      }
+      if (/macintosh|mac os x/i.test(navigator.userAgent) && event.metaKey) {
+        handleShortcut(event);
+      }
+    });
+  }
+
+  document.addEventListener(
+    "paste",
+    (event) => {
+      if (pasteAsPlainTextPending) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        const text = event.clipboardData?.getData("text/plain") || "";
+        if (text) {
+          document.execCommand("insertText", false, text);
+        }
+      }
+    },
+    true,
+>>>>>>> refs/remotes/origin/main
   );
 }
 
@@ -490,8 +602,35 @@ function setupNavigationHandlers(
           return originalWindowOpen.call(window, absoluteUrl, name, specs);
         }
 
+<<<<<<< HEAD
         handleExternalLink(absoluteUrl, invoke);
         return null;
+=======
+      // Extract root domain (e.g., bilibili.com from www.bilibili.com)
+      const getRootDomain = (hostname) => {
+        const parts = hostname.split(".");
+        return parts.length >= 2 ? parts.slice(-2).join(".") : hostname;
+      };
+
+      return (
+        getRootDomain(currentUrl.hostname) === getRootDomain(linkUrl.hostname)
+      );
+    } catch (e) {
+      return false;
+    }
+  };
+
+  // Check if URL should be treated as internal based on regex pattern or domain
+  const isInternalUrl = (url) => {
+    // If regex pattern is configured, use it as the primary check
+    if (internalUrlPattern) {
+      try {
+        return internalUrlPattern.test(url);
+      } catch (e) {
+        console.error("[RedWX] Error testing internal_url_regex:", e);
+        // Fall back to domain check on error
+        return isSameDomain(url);
+>>>>>>> refs/remotes/origin/main
       }
 
       return originalWindowOpen.call(window, absoluteUrl, name, specs);
@@ -699,11 +838,11 @@ function buildMenuItems(type, data, invoke) {
   const userLanguage = getUserLanguage();
   const menuTexts = {
     // Media operations
-    downloadImage: isChineseLanguage() ? "ÏÂÔØÍ¼Æ¬" : "Download Image",
-    downloadVideo: isChineseLanguage() ? "ÏÂÔØÊÓÆµ" : "Download Video",
-    downloadFile: isChineseLanguage() ? "ÏÂÔØÎÄ¼þ" : "Download File",
-    copyAddress: isChineseLanguage() ? "¸´ÖÆµØÖ·" : "Copy Address",
-    openInBrowser: isChineseLanguage() ? "ä¯ÀÀÆ÷´ò¿ª" : "Open in Browser",
+    downloadImage: isChineseLanguage() ? "ï¿½ï¿½ï¿½ï¿½Í¼Æ¬" : "Download Image",
+    downloadVideo: isChineseLanguage() ? "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµ" : "Download Video",
+    downloadFile: isChineseLanguage() ? "ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½" : "Download File",
+    copyAddress: isChineseLanguage() ? "ï¿½ï¿½ï¿½Æµï¿½Ö·" : "Copy Address",
+    openInBrowser: isChineseLanguage() ? "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½" : "Open in Browser",
   };
   const items = [];
 
@@ -952,6 +1091,7 @@ function setupContextMenu(invoke) {
   });
 }
 
+<<<<<<< HEAD
 async function init() {
   await waitForBody();
   // Debug panel
@@ -1295,6 +1435,8 @@ async function init() {
     console.warn("[RedWX] Badging API polyfill install failed:", err);
   }
 })();
+=======
+>>>>>>> refs/remotes/origin/main
 
 function setDefaultZoom() {
   const htmlZoom = window.localStorage.getItem("htmlZoom");
