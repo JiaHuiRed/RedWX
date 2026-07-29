@@ -1,7 +1,7 @@
 {
   "productName": "RedWX",
   "identifier": "com.redcode.redwx",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "app": {
     "withGlobalTauri": true,
     "security": {
