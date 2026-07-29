@@ -5,10 +5,10 @@
  <h1 align="center">RedWX</h1>
  <p align="center"><em>WeRead desktop client, built with Tauri.</em></p>
  <div align="center">
-     <a href="https://img.shields.io/badge/version-v0.1.1-blue" target="_blank">
-    <img alt="version" src="https://img.shields.io/badge/version-v0.2.0-blue"></a>
-     <a href="https://img.shields.io/badge/license-MIT-lightgrey" target="_blank">
-    <img alt="version" src="https://img.shields.io/badge/version-v0.1.1-blue"></a>
+     <a href="CHANGELOG.md" target="_blank">
+    <img alt="version" src="https://img.shields.io/badge/version-v0.3.0-blue"></a>
+     <a href="LICENSE" target="_blank">
+    <img alt="license" src="https://img.shields.io/badge/license-MIT-lightgrey"></a>
     <a href="https://img.shields.io/badge/license-MIT-lightgrey" target="_blank">
     <img alt="license" src="https://img.shields.io/badge/license-MIT-lightgrey"></a>
     <a href="https://img.shields.io/badge/platform-Windows-0078d4" target="_blank">
@@ -79,7 +79,7 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 ## 💙 Credits
 
-- Built by: Xiao Song
-- Based on: [Pake](https://github.com/tw93/Pake) by [Tw93](https://github.com/tw93)
-- Based on: [Tauri](https://tauri.app) (Rust)
-- License: MIT
+- **Built by**: Xiao Song
+- **Upstream project**: [Pake](https://github.com/tw93/Pake) by [Tw93](https://github.com/tw93) — RedWX is built on Pake's framework. Thanks to the Pake community for the excellent Tauri packaging approach and technical foundation. 🙏
+- **Framework**: [Tauri](https://tauri.app) (Rust)
+- **License**: MIT

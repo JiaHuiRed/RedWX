@@ -36,6 +36,12 @@ pub struct WindowConfig {
     pub min_height: f64,
     #[serde(default)]
     pub ignore_certificate_errors: bool,
+    #[serde(default = "default_version")]
+    pub version: String,
+}
+
+fn default_version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
 }
 
 fn default_zoom() -> u32 {
@@ -53,10 +59,4 @@ pub struct PakeConfig {
     pub multi_instance: bool,
     #[serde(default)]
     pub multi_window: bool,
-}
-
-impl PakeConfig {
-    pub fn show_system_tray(&self) -> bool {
-        self.system_tray
-    }
 }

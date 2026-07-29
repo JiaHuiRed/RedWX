@@ -369,7 +369,7 @@ async function injectPakeStyles() {
     document.body.appendChild(trafficLights);
     const versionSpan = document.createElement("span");
     versionSpan.id = "pake-app-version";
-    versionSpan.textContent = "v" + (window["pakeConfig"]?.version || "0.1.1");
+    versionSpan.textContent = "v" + (window["pakeConfig"]?.version || "");
     trafficLights.appendChild(versionSpan);
     document.body.classList.add("pake-macos-style");
     console.log("[RedWX] Traffic lights injected");

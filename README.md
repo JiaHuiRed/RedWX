@@ -6,7 +6,7 @@
 
  > _微信读书桌面客户端，基于 Tauri 二次开发。_
 
- [![版本](https://img.shields.io/badge/版本-v0.2.0-blue)](CHANGELOG.md)
+ [![版本](https://img.shields.io/badge/版本-v0.3.0-blue)](CHANGELOG.md)
  [![许可证](https://img.shields.io/badge/许可证-MIT-lightgrey)](LICENSE)
 [![平台](https://badgen.net/badge/平台/Windows%2010%2F11/green)](https://github.com/JiaHuiRed/RedWX)
  [![Tauri](https://img.shields.io/badge/Tauri-2.x-ffc131)](https://tauri.app)
@@ -74,7 +74,7 @@ pnpm run build    # 打包应用
 
 ## 💙 致谢
 
-- 构建者：小宋
-- 基于：[Pake](https://github.com/tw93/Pake) by [Tw93](https://github.com/tw93)
-- 基于：[Tauri](https://tauri.app) (Rust)
-- 许可证：MIT
+- **构建者**：小宋
+- **上游项目**：[Pake](https://github.com/tw93/Pake) by [Tw93](https://github.com/tw93) — RedWX 基于 Pake 的框架二次开发，感谢 Pake 社区提供的优秀的 Tauri 包装方案和技术基础。🙏
+- **框架**：[Tauri](https://tauri.app) (Rust)
+- **许可证**：MIT

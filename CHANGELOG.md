@@ -6,6 +6,25 @@
 
 ---
 
+## [0.3.0] - 2026-07-22
+
+### 重构
+
+- **项目身份重命名**：将全部 Rust 错误日志中的 `[Pake]` 前缀替换为 `[RedWX]`，JS console.log 日志同理，统一项目运行时身份标识（`src-tauri/src/lib.rs`、`src-tauri/src/app/window.rs`、`src-tauri/src/app/setup.rs`、`src-tauri/src/app/util.rs`、`src-tauri/src/inject/event.js`、`src-tauri/src/inject/auth.js`）
+- **窗口控制解耦**：从 `event.js` 提取 Notification / Badge 相关 polyfill 为独立 `badge.js` 模块，在 `window.rs` 初始化脚本中独立注册，职责分离、降低偶合（`src-tauri/src/inject/badge.js`、`src-tauri/src/inject/event.js`、`src-tauri/src/app/window.rs`）
+
+### 修复
+
+- **版本标签始终显示 v0.1.1**：`WindowConfig` 缺少 `version` 字段，style.js 回退 `"0.1.1"` 始终生效。添加 `version` 字段并由 `env!("CARGO_PKG_VERSION")` 编译时注入，移除硬编码回退，版本标签将自动跟随 Cargo.toml 版本号（`src-tauri/src/app/config.rs`、`src-tauri/src/inject/style.js`）
+- **工具链修复**：`rust-toolchain.toml` 从 `1.95.0-x86_64-pc-windows-gnu` 改为 `1.95.0`（MSVC），解决 GNU 目标缺少 dlltool 导致的编译失败（`rust-toolchain.toml`）
+
+### 移除
+
+- **冗余 `show_system_tray()` 包装**：`PakeConfig` 的 `system_tray` 已为 `pub` 字段，直接使用替代方法调用（`src-tauri/src/app/config.rs`）
+- **调试日志噪声**：移除 event.js 中 drag / traffic-light 处理器的调试 `console.log` 输出（`src-tauri/src/inject/event.js`）
+
+---
+
 ## [0.2.0] - 2026-07-21
 
 ### 重构
