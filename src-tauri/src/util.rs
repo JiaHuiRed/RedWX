@@ -48,9 +48,9 @@ pub fn get_data_dir(app: &AppHandle, package_name: String) -> std::io::Result<Pa
 }
 
 pub fn show_toast(window: &WebviewWindow, message: &str) {
-    let script = format!(r#"pakeToast("{message}");"#);
+    let script = format!(r#"redwxToast("{message}");"#);
     if let Err(error) = window.eval(&script) {
-        eprintln!("[Pake] Failed to show toast: {error}");
+        eprintln!("[RedWX] Failed to show toast: {error}");
     }
 }
 

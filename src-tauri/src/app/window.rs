@@ -114,7 +114,7 @@ fn build_window_with_label(
     let window_config = config.windows.first().ok_or_else(|| {
         tauri::Error::Io(std::io::Error::new(
             std::io::ErrorKind::InvalidData,
-            "pake.json must define at least one window configuration",
+            "RedWX config must define at least one window configuration",
         ))
     })?;
     let url = match window_config.url_type.as_str() {
@@ -123,7 +123,7 @@ fn build_window_with_label(
                 tauri::Error::Io(std::io::Error::new(
                     std::io::ErrorKind::InvalidInput,
                     format!(
-                        "Invalid 'web' url '{}' in pake.json: {err}",
+                        "Invalid 'web' url '{}' in config: {err}",
                         window_config.url
                     ),
                 ))
@@ -167,14 +167,14 @@ fn build_window(
     let package_name = tauri_config
         .product_name
         .clone()
-        .unwrap_or_else(|| "pake".to_string());
+        .unwrap_or_else(|| "RedWX".to_string());
     let _data_dir = get_data_dir(app, package_name).map_err(tauri::Error::Io)?;
     let mut parsed_proxy_url: Option<Url> = None;
 
     let window_config = config.windows.first().ok_or_else(|| {
         tauri::Error::Io(std::io::Error::new(
             std::io::ErrorKind::InvalidData,
-            "pake.json must define at least one window configuration",
+            "RedWX config must define at least one window configuration",
         ))
     })?;
 
@@ -245,7 +245,7 @@ fn build_window(
             ) {
                 Ok(window) => NewWindowResponse::Create { window },
                 Err(error) => {
-                    eprintln!("[Pake] Failed to open requested window: {error}");
+                    eprintln!("[RedWX] Failed to open requested window: {error}");
                     NewWindowResponse::Deny
                 }
             }
@@ -254,7 +254,7 @@ fn build_window(
 
     // Add initialization scripts. Order matters: pakeConfig must land before
     // any script that reads it (e.g. fullscreen polyfill checks for an opt-out
-    // flag), and toast must register `window.pakeToast` before Rust code
+    // flag), and toast must register `window.redwxToast` before Rust code
     // calls show_toast().
     window_builder = window_builder
         .initialization_script(&config_script)

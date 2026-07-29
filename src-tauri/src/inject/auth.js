@@ -8,7 +8,7 @@ function matchesAuthUrl(url, baseUrl = window.location.href) {
     const pathname = urlObj.pathname.toLowerCase();
     const fullUrl = urlObj.href.toLowerCase();
 
-    // Common OAuth providers and paths
+    // OAuth/authentication URL patterns — kept specific to avoid false positives
     const oauthPatterns = [
       /accounts\.google\.com/,
       /accounts\.google\.[a-z]+/,
@@ -21,8 +21,6 @@ function matchesAuthUrl(url, baseUrl = window.location.href) {
       /\/auth\//,
       /\/authorize/,
       /\/login\/oauth/,
-      /\/signin/,
-      /\/login/,
       /servicelogin/,
       /\/o\/oauth2/,
     ];
@@ -35,7 +33,7 @@ function matchesAuthUrl(url, baseUrl = window.location.href) {
     );
 
     if (isMatch) {
-      console.log("[Pake] OAuth URL detected:", url);
+      console.log("[RedWX] OAuth URL detected:", url);
     }
 
     return isMatch;
@@ -51,15 +49,11 @@ function isAuthLink(url) {
 
 // Check if this is an OAuth/authentication popup
 function isAuthPopup(url, name) {
-  // Check for known authentication window names
+  // Known authentication window names — keep provider-specific only
   const authWindowNames = [
     "AppleAuthentication",
-    "oauth2",
-    "oauth",
     "google-auth",
     "auth-popup",
-    "signin",
-    "login",
   ];
 
   if (authWindowNames.includes(name)) {

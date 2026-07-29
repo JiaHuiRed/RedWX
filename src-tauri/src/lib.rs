@@ -19,7 +19,8 @@ use app::{
 };
 use util::get_pake_config;
 
-pub fn run_app() {
+#[no_mangle]
+pub extern "C" fn run_app() {
     let (pake_config, tauri_config) = get_pake_config();
     let tauri_app = tauri::Builder::default();
 
@@ -124,12 +125,13 @@ pub fn run_app() {
         })
         .build(tauri::generate_context!())
         .unwrap_or_else(|error| {
-            eprintln!("[Pake] Fatal error while building Tauri application: {error}");
+            eprintln!("[RedWX] Fatal error while building Tauri application: {error}");
             std::process::exit(1);
         })
         .run(|_app, _event| {});
 }
 
-pub fn run() {
+#[no_mangle]
+pub extern "C" fn run() {
     run_app()
 }

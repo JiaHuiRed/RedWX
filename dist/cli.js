@@ -20,11 +20,11 @@ import { InvalidArgumentError, program as program$1, Option } from 'commander';
 import fs$1 from 'fs';
 
 var name = "red-wx";
-var version = "0.1.0";
+var version = "0.2.0";
 var description = "微信读书桌面客户端，基于 Tauri。";
 var author = {
-	name: "Tw93",
-	email: "tw93@qq.com"
+	name: "Red",
+	email: "red@redcode.dev"
 };
 var license = "MIT";
 var packageManager = "pnpm@11.2.2";
@@ -33,7 +33,7 @@ var bin = {
 };
 var repository = {
 	type: "git",
-	url: "git+https://github.com/tw93/Pake.git"
+	url: "git+https://github.com/RedCode/RedWX.git"
 };
 var keywords = [
 	"pake",
@@ -67,8 +67,8 @@ var scripts = {
 var type = "module";
 var exports$1 = "./dist/cli.js";
 var dependencies = {
-	"@tauri-apps/api": "~2.10.1",
-	"@tauri-apps/cli": "^2.10.0",
+	"@tauri-apps/api": "~2.11.1",
+	"@tauri-apps/cli": "^2.11.1",
 	chalk: "^5.6.2",
 	commander: "^14.0.3",
 	execa: "^9.6.1",
@@ -103,16 +103,6 @@ var devDependencies = {
 	typescript: "^5.9.3",
 	vitest: "^4.0.18"
 };
-var pnpm = {
-	overrides: {
-		sharp: "^0.34.5",
-		"@img/sharp-libvips-darwin-arm64": "1.2.4"
-	},
-	onlyBuiltDependencies: [
-		"esbuild",
-		"sharp"
-	]
-};
 var packageJson = {
 	name: name,
 	version: version,
@@ -128,8 +118,7 @@ var packageJson = {
 	type: type,
 	exports: exports$1,
 	dependencies: dependencies,
-	devDependencies: devDependencies,
-	pnpm: pnpm
+	devDependencies: devDependencies
 };
 
 // Convert the current module URL to a file path

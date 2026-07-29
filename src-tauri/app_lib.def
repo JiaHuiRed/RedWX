@@ -1,0 +1,4 @@
+LIBRARY "app_lib"
+EXPORTS
+    run
+    run_app

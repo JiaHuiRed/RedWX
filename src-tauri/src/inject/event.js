@@ -283,347 +283,221 @@ async function waitForBody() {
   }
 }
 
-async function init() {
-  await waitForBody();
-  // Debug panel
-  const debugDiv = document.createElement("div");
-  debugDiv.id = "redwx-debug";
-  debugDiv.style.cssText = "position:fixed;bottom:10px;right:10px;background:rgba(0,0,0,0.8);color:#0f0;padding:8px;font-family:monospace;font-size:12px;z-index:999999;max-width:400px;word-break:break-all;display:none;";
-  document.body.appendChild(debugDiv);
-  const debug = (msg) => { console.log("[RedWX-DEBUG]", msg); };
+function isSameDomain(url) {
+  try {
+    const linkUrl = new URL(url);
+    const currentUrl = new URL(window.location.href);
 
-  const tauri = window.__TAURI__;
-  console.log("[RedWX] __TAURI__:", tauri ? "yes" : "no");
-  debug("__TAURI__: " + (tauri ? "yes" : "no"));
-  if (tauri) {
-    debug("keys: " + Object.keys(tauri).join(","));
+    if (linkUrl.hostname === currentUrl.hostname) return true;
+
+    // Extract root domain (e.g., bilibili.com from www.bilibili.com)
+    const getRootDomain = (hostname) => {
+      const parts = hostname.split(".");
+      return parts.length >= 2 ? parts.slice(-2).join(".") : hostname;
+    };
+
+    return (
+      getRootDomain(currentUrl.hostname) === getRootDomain(linkUrl.hostname)
+    );
+  } catch (e) {
+    return false;
   }
-  const invoke = tauri?.core?.invoke;
-  const pakeConfig = window["pakeConfig"] || {};
-  let appWindow = null;
-  if (tauri?.window?.getCurrentWindow) {
+}
+
+function isInternalUrl(url, internalUrlPattern) {
+  // If regex pattern is configured, use it as the primary check
+  if (internalUrlPattern) {
     try {
-      appWindow = await tauri.window.getCurrentWindow();
-      console.log("[RedWX] getCurrentWindow: ok");
-      debug("getCurrentWindow: ok");
-    } catch (err) {
-      console.log("[RedWX] getCurrentWindow ERROR:", err.message);
-      debug("getCurrentWindow ERROR: " + err.message);
-    }
-  } else {
-    console.log("[RedWX] getCurrentWindow: not available");
-    debug("getCurrentWindow: not available");
-  }
-  console.log("[RedWX] init complete, appWindow:", appWindow ? "ok" : "null");
-  const forceInternalNavigation = pakeConfig.force_internal_navigation === true;
-  const internalUrlRegex = pakeConfig.internal_url_regex || "";
-  let internalUrlPattern = null;
-  if (internalUrlRegex) {
-    try {
-      internalUrlPattern = new RegExp(internalUrlRegex);
+      return internalUrlPattern.test(url);
     } catch (e) {
-      console.error("[Pake] Invalid internal_url_regex pattern:", e);
+      console.error("[RedWX] Error testing internal_url_regex:", e);
+      // Fall back to domain check on error
+      return isSameDomain(url);
     }
   }
+  // Default to domain-based check
+  return isSameDomain(url);
+}
 
-  if (!document.getElementById("pake-top-dom")) {
-    const topDom = document.createElement("div");
-    topDom.id = "pake-top-dom";
-    document.body.appendChild(topDom);
-  }
+function isSpecialDownload(url) {
+  return ["blob", "data"].some((protocol) => url.startsWith(protocol));
+}
 
-  const domEl = document.getElementById("pake-top-dom");
-
-  domEl.addEventListener("touchstart", () => {
-    console.log("[RedWX] touchstart drag");
-    if (appWindow) appWindow.startDragging();
-  });
-
-  domEl.addEventListener("mousedown", (e) => {
-    console.log("[RedWX] mousedown, buttons:", e.buttons, "detail:", e.detail);
-    if (e.buttons === 1 && e.detail !== 2 && appWindow) {
-      console.log("[RedWX] dragging");
-      appWindow.startDragging();
-    }
-  });
-
-  domEl.addEventListener("dblclick", () => {
-    console.log("[RedWX] dblclick");
-    if (!appWindow) return;
-    appWindow.isFullscreen().then((fullscreen) => {
-      console.log("[RedWX] fullscreen:", fullscreen);
-      appWindow.setFullscreen(!fullscreen);
-    });
-  });
-
-  // macOS-style traffic light button handlers for Windows
-  const isWindows = /windows/i.test(navigator.userAgent);
-  if (isWindows && pakeConfig?.hide_title_bar) {
-    const getAppWindow = async () => {
-      if (appWindow) return appWindow;
-      if (tauri?.window?.getCurrentWindow) {
-        try {
-          appWindow = await tauri.window.getCurrentWindow();
-        } catch (_) {}
-      }
-      return appWindow;
-    };
-
-    const handleTrafficLightClick = async (e) => {
-      const trafficLight = e.target.closest("#pake-traffic-lights .traffic-light");
-      console.log("[RedWX] traffic light click, target:", e.target.className, "trafficLight:", trafficLight ? "yes" : "no");
-      if (!trafficLight) return;
-
-      const win = await getAppWindow();
-      if (!win) return;
-
-      try {
-        if (trafficLight.classList.contains("close")) {
-          console.log("[RedWX] close");
-          win.close();
-        } else if (trafficLight.classList.contains("minimize")) {
-          console.log("[RedWX] minimize");
-          win.minimize();
-        } else if (trafficLight.classList.contains("maximize")) {
-          console.log("[RedWX] maximize");
-          const isMaximized = await win.isMaximized();
-          if (isMaximized) {
-            win.unmaximize();
-          } else {
-            win.maximize();
-          }
-        }
-      } catch (error) {
-        console.error("[RedWX] Traffic light action failed:", error);
-      }
-    };
-
-    document.addEventListener("click", handleTrafficLightClick, true);
-    console.log("[RedWX] Traffic light click listener attached");
-
-    // Update maximize state
-    const updateMaximizeState = async () => {
-      const maximizeBtn = document.querySelector("#pake-traffic-lights .maximize");
-      if (!maximizeBtn) return;
-      const win = await getAppWindow();
-      if (!win) return;
-      win.isMaximized().then((maximized) => {
-        maximizeBtn.title = maximized ? "Restore" : "Maximize";
-      });
-    };
-
-    window.addEventListener("focus", updateMaximizeState);
-    updateMaximizeState();
-
-    // Window active/inactive state for traffic light appearance
-    window.addEventListener("focus", () => {
-      const trafficLights = document.getElementById("pake-traffic-lights");
-      if (trafficLights) trafficLights.classList.remove("inactive");
-    });
-    window.addEventListener("blur", () => {
-      const trafficLights = document.getElementById("pake-traffic-lights");
-      if (trafficLights) trafficLights.classList.add("inactive");
-    });
-  }
-
-  if (window["pakeConfig"]?.disabled_web_shortcuts !== true) {
-    document.addEventListener("keyup", (event) => {
-      if (/windows|linux/i.test(navigator.userAgent) && event.ctrlKey) {
-        handleShortcut(event);
-      }
-      if (/macintosh|mac os x/i.test(navigator.userAgent) && event.metaKey) {
-        handleShortcut(event);
-      }
-    });
-  }
-
-  document.addEventListener(
-    "paste",
-    (event) => {
-      if (pasteAsPlainTextPending) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-
-        const text = event.clipboardData?.getData("text/plain") || "";
-        if (text) {
-          document.execCommand("insertText", false, text);
-        }
-      }
-    },
-    true,
+function isDownloadRequired(url, anchorElement, e) {
+  return (
+    anchorElement.download || e.metaKey || e.ctrlKey || isDownloadableFile(url)
   );
+}
 
-  // Collect blob urls to blob by overriding window.URL.createObjectURL
-  function collectUrlToBlobs() {
-    const backupCreateObjectURL = window.URL.createObjectURL;
-    window.blobToUrlCaches = new Map();
-    window.URL.createObjectURL = (blob) => {
-      const url = backupCreateObjectURL.call(window.URL, blob);
-      window.blobToUrlCaches.set(url, blob);
-      return url;
+function handleExternalLink(url, invoke) {
+  // Don't try to open blob: or data: URLs with shell
+  if (isSpecialDownload(url)) {
+    console.warn("Cannot open special URL with shell:", url);
+    return;
+  }
+
+  invoke("plugin:shell|open", {
+    path: url,
+  }).catch((error) => {
+    console.error("Failed to open URL with shell:", url, error);
+  });
+}
+
+// Collect blob urls to blob by overriding window.URL.createObjectURL
+function collectUrlToBlobs() {
+  const backupCreateObjectURL = window.URL.createObjectURL;
+  window.blobToUrlCaches = new Map();
+  window.URL.createObjectURL = (blob) => {
+    const url = backupCreateObjectURL.call(window.URL, blob);
+    window.blobToUrlCaches.set(url, blob);
+    return url;
+  };
+}
+
+function convertBlobUrlToBinary(blobUrl) {
+  return new Promise((resolve, reject) => {
+    const blob = window.blobToUrlCaches.get(blobUrl);
+    if (!blob) {
+      fetch(blobUrl)
+        .then((res) => res.arrayBuffer())
+        .then((buffer) => resolve(Array.from(new Uint8Array(buffer))))
+        .catch(reject);
+      return;
+    }
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(blob);
+    reader.onload = () => {
+      resolve(Array.from(new Uint8Array(reader.result)));
     };
-  }
+    reader.onerror = () => reject(reader.error);
+  });
+}
 
-  function convertBlobUrlToBinary(blobUrl) {
-    return new Promise((resolve, reject) => {
-      const blob = window.blobToUrlCaches.get(blobUrl);
-      if (!blob) {
-        fetch(blobUrl)
-          .then((res) => res.arrayBuffer())
-          .then((buffer) => resolve(Array.from(new Uint8Array(buffer))))
-          .catch(reject);
-        return;
-      }
-      const reader = new FileReader();
-      reader.readAsArrayBuffer(blob);
-      reader.onload = () => {
-        resolve(Array.from(new Uint8Array(reader.result)));
-      };
-      reader.onerror = () => reject(reader.error);
+function downloadFromDataUri(dataURI, filename, invoke) {
+  try {
+    const byteString = atob(dataURI.split(",")[1]);
+    // write the bytes of the string to an ArrayBuffer
+    const bufferArray = new ArrayBuffer(byteString.length);
+
+    // create a view into the buffer
+    const binary = new Uint8Array(bufferArray);
+
+    // set the bytes of the string to the buffer, byte by byte
+    for (let i = 0; i < byteString.length; i++) {
+      binary[i] = byteString.charCodeAt(i);
+    }
+
+    // write the ArrayBuffer to the file, and you're done
+    const userLanguage = getUserLanguage();
+    invoke("download_file_by_binary", {
+      params: {
+        filename,
+        binary: Array.from(binary),
+        language: userLanguage,
+      },
+    }).catch((error) => {
+      console.error("Failed to download data URI file:", filename, error);
+      showDownloadError(filename);
     });
+  } catch (error) {
+    console.error("Failed to process data URI:", dataURI, error);
+    showDownloadError(filename || "file");
   }
+}
 
-  function downloadFromDataUri(dataURI, filename) {
-    try {
-      const byteString = atob(dataURI.split(",")[1]);
-      // write the bytes of the string to an ArrayBuffer
-      const bufferArray = new ArrayBuffer(byteString.length);
-
-      // create a view into the buffer
-      const binary = new Uint8Array(bufferArray);
-
-      // set the bytes of the buffer to the correct values
-      for (let i = 0; i < byteString.length; i++) {
-        binary[i] = byteString.charCodeAt(i);
-      }
-
-      // write the ArrayBuffer to a binary, and you're done
+function downloadFromBlobUrl(blobUrl, filename, invoke) {
+  convertBlobUrlToBinary(blobUrl)
+    .then((binary) => {
       const userLanguage = getUserLanguage();
       invoke("download_file_by_binary", {
         params: {
           filename,
-          binary: Array.from(binary),
+          binary,
           language: userLanguage,
         },
       }).catch((error) => {
-        console.error("Failed to download data URI file:", filename, error);
+        console.error("Failed to download blob file:", filename, error);
         showDownloadError(filename);
       });
-    } catch (error) {
-      console.error("Failed to process data URI:", dataURI, error);
-      showDownloadError(filename || "file");
-    }
-  }
-
-  function downloadFromBlobUrl(blobUrl, filename) {
-    convertBlobUrlToBinary(blobUrl)
-      .then((binary) => {
-        const userLanguage = getUserLanguage();
-        invoke("download_file_by_binary", {
-          params: {
-            filename,
-            binary,
-            language: userLanguage,
-          },
-        }).catch((error) => {
-          console.error("Failed to download blob file:", filename, error);
-          showDownloadError(filename);
-        });
-      })
-      .catch((error) => {
-        console.error("Failed to convert blob to binary:", blobUrl, error);
-        showDownloadError(filename);
-      });
-  }
-
-  // detect blob download by createElement("a")
-  function detectDownloadByCreateAnchor() {
-    const createEle = document.createElement;
-    document.createElement = (el) => {
-      if (el !== "a") return createEle.call(document, el);
-      const anchorEle = createEle.call(document, el);
-
-      // use addEventListener to avoid overriding the original click event.
-      anchorEle.addEventListener(
-        "click",
-        (e) => {
-          const url = anchorEle.href;
-          const filename = anchorEle.download || getFilenameFromUrl(url);
-          if (window.blobToUrlCaches.has(url)) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            downloadFromBlobUrl(url, filename);
-            // case: download from dataURL -> convert dataURL ->
-          } else if (url.startsWith("data:")) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            downloadFromDataUri(url, filename);
-          }
-        },
-        true,
-      );
-
-      return anchorEle;
-    };
-  }
-
-  // process special download protocol['data:','blob:']
-  const isSpecialDownload = (url) =>
-    ["blob", "data"].some((protocol) => url.startsWith(protocol));
-
-  const isDownloadRequired = (url, anchorElement, e) =>
-    anchorElement.download || e.metaKey || e.ctrlKey || isDownloadableFile(url);
-
-  const handleExternalLink = (url) => {
-    // Don't try to open blob: or data: URLs with shell
-    if (isSpecialDownload(url)) {
-      console.warn("Cannot open special URL with shell:", url);
-      return;
-    }
-
-    invoke("plugin:shell|open", {
-      path: url,
-    }).catch((error) => {
-      console.error("Failed to open URL with shell:", url, error);
+    })
+    .catch((error) => {
+      console.error("Failed to convert blob to binary:", blobUrl, error);
+      showDownloadError(filename);
     });
-  };
+}
 
-  // Check if URL belongs to the same domain (including subdomains)
-  const isSameDomain = (url) => {
+// detect blob download by createElement("a")
+function detectDownloadByCreateAnchor(invoke) {
+  const createEle = document.createElement;
+  document.createElement = (el) => {
+    if (el !== "a") return createEle.call(document, el);
+    const anchorEle = createEle.call(document, el);
+
+    // use addEventListener to avoid overriding the original click event.
+    anchorEle.addEventListener(
+      "click",
+      (e) => {
+        const url = anchorEle.href;
+        const filename = anchorEle.download || getFilenameFromUrl(url);
+        if (window.blobToUrlCaches.has(url)) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          downloadFromBlobUrl(url, filename, invoke);
+          // case: download from dataURL -> convert dataURL ->
+        } else if (url.startsWith("data:")) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          downloadFromDataUri(url, filename, invoke);
+        }
+      },
+      true,
+    );
+
+    return anchorEle;
+  };
+}
+
+function setupNavigationHandlers(
+  forceInternalNavigation,
+  internalUrlPattern,
+  invoke,
+) {
+  // Rewrite the window.open function.
+  const originalWindowOpen = window.open;
+  window.open = function (url, name, specs) {
+    const normalizedUrl = normalizeAnchorHref(url);
+    if (normalizedUrl.startsWith("#")) {
+      window.location.href = new URL(normalizedUrl, window.location.href).href;
+      return window;
+    }
+
+    if (shouldBypassPakeLinkHandling(url)) {
+      return originalWindowOpen.call(window, url, name, specs);
+    }
+
+    // Allow authentication popups to open normally
+    if (window.isAuthPopup(url, name)) {
+      return originalWindowOpen.call(window, url, name, specs);
+    }
+
     try {
-      const linkUrl = new URL(url);
-      const currentUrl = new URL(window.location.href);
+      const baseUrl = window.location.origin + window.location.pathname;
+      const hrefUrl = new URL(url, baseUrl);
+      const absoluteUrl = hrefUrl.href;
 
-      if (linkUrl.hostname === currentUrl.hostname) return true;
+      if (!isInternalUrl(absoluteUrl, internalUrlPattern)) {
+        if (forceInternalNavigation) {
+          return originalWindowOpen.call(window, absoluteUrl, name, specs);
+        }
 
-      // Extract root domain (e.g., bilibili.com from www.bilibili.com)
-      const getRootDomain = (hostname) => {
-        const parts = hostname.split(".");
-        return parts.length >= 2 ? parts.slice(-2).join(".") : hostname;
-      };
-
-      return (
-        getRootDomain(currentUrl.hostname) === getRootDomain(linkUrl.hostname)
-      );
-    } catch (e) {
-      return false;
-    }
-  };
-
-  // Check if URL should be treated as internal based on regex pattern or domain
-  const isInternalUrl = (url) => {
-    // If regex pattern is configured, use it as the primary check
-    if (internalUrlPattern) {
-      try {
-        return internalUrlPattern.test(url);
-      } catch (e) {
-        console.error("[Pake] Error testing internal_url_regex:", e);
-        // Fall back to domain check on error
-        return isSameDomain(url);
+        handleExternalLink(absoluteUrl, invoke);
+        return null;
       }
+
+      return originalWindowOpen.call(window, absoluteUrl, name, specs);
+    } catch (error) {
+      return originalWindowOpen.call(window, url, name, specs);
     }
-    // Default to domain-based check
-    return isSameDomain(url);
   };
 
   const detectAnchorElementClick = (e) => {
@@ -646,7 +520,7 @@ async function init() {
 
       // Keep OAuth/authentication flows inside the app when popup support is enabled.
       if (window.isAuthLink(absoluteUrl)) {
-        console.log("[Pake] Handling OAuth navigation in-app:", absoluteUrl);
+        console.log("[RedWX] Handling OAuth navigation in-app:", absoluteUrl);
 
         if (window.pakeConfig?.new_window) {
           e.preventDefault();
@@ -676,14 +550,14 @@ async function init() {
           return;
         }
 
-        if (isInternalUrl(absoluteUrl)) {
+        if (isInternalUrl(absoluteUrl, internalUrlPattern)) {
           // For internal links (based on regex or domain), let the browser handle it naturally
           return;
         }
 
         e.preventDefault();
         e.stopImmediatePropagation();
-        handleExternalLink(absoluteUrl);
+        handleExternalLink(absoluteUrl, invoke);
         return;
       }
 
@@ -696,7 +570,7 @@ async function init() {
         }
 
         e.preventDefault();
-        handleExternalLink(absoluteUrl);
+        handleExternalLink(absoluteUrl, invoke);
         return;
       }
 
@@ -722,14 +596,14 @@ async function init() {
           return;
         }
 
-        if (!isInternalUrl(absoluteUrl)) {
+        if (!isInternalUrl(absoluteUrl, internalUrlPattern)) {
           if (forceInternalNavigation) {
             return;
           }
 
           e.preventDefault();
           e.stopImmediatePropagation();
-          handleExternalLink(absoluteUrl);
+          handleExternalLink(absoluteUrl, invoke);
         }
       }
     }
@@ -737,77 +611,148 @@ async function init() {
 
   // Prevent some special websites from executing in advance, before the click event is triggered.
   document.addEventListener("click", detectAnchorElementClick, true);
+}
 
-  collectUrlToBlobs();
-  detectDownloadByCreateAnchor();
-
-  // Rewrite the window.open function.
-  const originalWindowOpen = window.open;
-  window.open = function (url, name, specs) {
-    const normalizedUrl = normalizeAnchorHref(url);
-    if (normalizedUrl.startsWith("#")) {
-      window.location.href = new URL(normalizedUrl, window.location.href).href;
-      return window;
-    }
-
-    if (shouldBypassPakeLinkHandling(url)) {
-      return originalWindowOpen.call(window, url, name, specs);
-    }
-
-    // Allow authentication popups to open normally
-    if (window.isAuthPopup(url, name)) {
-      return originalWindowOpen.call(window, url, name, specs);
-    }
-
-    try {
-      const baseUrl = window.location.origin + window.location.pathname;
-      const hrefUrl = new URL(url, baseUrl);
-      const absoluteUrl = hrefUrl.href;
-
-      if (!isInternalUrl(absoluteUrl)) {
-        if (forceInternalNavigation) {
-          return originalWindowOpen.call(window, absoluteUrl, name, specs);
-        }
-
-        handleExternalLink(absoluteUrl);
-        return null;
-      }
-
-      return originalWindowOpen.call(window, absoluteUrl, name, specs);
-    } catch (error) {
-      return originalWindowOpen.call(window, url, name, specs);
-    }
-  };
-
-  // Set the default zoom, There are problems with Loop without using try-catch.
-  try {
-    setDefaultZoom();
-  } catch (e) {
-    console.log(e);
+function downloadImage(imageUrl, invoke) {
+  // Convert relative URLs to absolute
+  if (imageUrl.startsWith("/")) {
+    imageUrl = window.location.origin + imageUrl;
+  } else if (imageUrl.startsWith("./")) {
+    imageUrl = new URL(imageUrl, window.location.href).href;
+  } else if (
+    !imageUrl.startsWith("http") &&
+    !imageUrl.startsWith("data:") &&
+    !imageUrl.startsWith("blob:")
+  ) {
+    imageUrl = new URL(imageUrl, window.location.href).href;
   }
 
-  // Fix Chinese input method "Enter" on Safari
-  document.addEventListener(
-    "keydown",
-    (e) => {
-      if (e.key === "Process") e.stopPropagation();
-    },
-    true,
-  );
+  // Generate filename from URL
+  const filename = getFilenameFromUrl(imageUrl) || "image";
 
-  // Language detection and texts
-  const isChinese = isChineseLanguage();
+  // Handle different URL types
+  if (imageUrl.startsWith("data:")) {
+    downloadFromDataUri(imageUrl, filename, invoke);
+  } else if (imageUrl.startsWith("blob:")) {
+    if (window.blobToUrlCaches && window.blobToUrlCaches.has(imageUrl)) {
+      downloadFromBlobUrl(imageUrl, filename, invoke);
+    }
+  } else {
+    // Regular HTTP(S) image
+    const userLanguage = getUserLanguage();
+    invoke("download_file", {
+      params: {
+        url: imageUrl,
+        filename: filename,
+        language: userLanguage,
+      },
+    }).catch((error) => {
+      console.error("Failed to download image:", filename, error);
+      showDownloadError(filename);
+    });
+  }
+}
 
+// Check if element is media (image or video)
+function getMediaInfo(target) {
+  // Check for img tags
+  if (target.tagName.toLowerCase() === "img") {
+    return { isMedia: true, url: target.src, type: "image" };
+  }
+
+  // Check for video tags
+  if (target.tagName.toLowerCase() === "video") {
+    return {
+      isMedia: true,
+      url: target.src || target.currentSrc,
+      type: "video",
+    };
+  }
+
+  // Check for elements with background images
+  if (target.style && target.style.backgroundImage) {
+    const bgImage = target.style.backgroundImage;
+    const urlMatch = bgImage.match(/url\(["']?([^"')]+)["']?\)/);
+    if (urlMatch) {
+      return { isMedia: true, url: urlMatch[1], type: "image" };
+    }
+  }
+
+  // Check for parent elements with background images
+  const parentWithBg =
+    target && typeof target.closest === "function"
+      ? target.closest('[style*="background-image"]')
+      : null;
+  if (parentWithBg) {
+    const bgImage = parentWithBg.style.backgroundImage;
+    const urlMatch = bgImage.match(/url\(["']?([^"')]+)["']?\)/);
+    if (urlMatch) {
+      return { isMedia: true, url: urlMatch[1], type: "image" };
+    }
+  }
+
+  return { isMedia: false, url: "", type: "" };
+}
+
+// Simplified menu builder
+function buildMenuItems(type, data, invoke) {
+  const userLanguage = getUserLanguage();
   const menuTexts = {
     // Media operations
-    downloadImage: isChinese ? "下载图片" : "Download Image",
-    downloadVideo: isChinese ? "下载视频" : "Download Video",
-    downloadFile: isChinese ? "下载文件" : "Download File",
-    copyAddress: isChinese ? "复制地址" : "Copy Address",
-    openInBrowser: isChinese ? "浏览器打开" : "Open in Browser",
+    downloadImage: isChineseLanguage() ? "下载图片" : "Download Image",
+    downloadVideo: isChineseLanguage() ? "下载视频" : "Download Video",
+    downloadFile: isChineseLanguage() ? "下载文件" : "Download File",
+    copyAddress: isChineseLanguage() ? "复制地址" : "Copy Address",
+    openInBrowser: isChineseLanguage() ? "浏览器打开" : "Open in Browser",
   };
+  const items = [];
 
-  // Menu theme configuration
+  switch (type) {
+    case "media":
+      const downloadText =
+        data.type === "image"
+          ? menuTexts.downloadImage
+          : menuTexts.downloadVideo;
+      items.push(
+        createMenuItem(downloadText, () => downloadImage(data.url, invoke)),
+        createMenuItem(menuTexts.copyAddress, () =>
+          navigator.clipboard.writeText(data.url),
+        ),
+        createMenuItem(menuTexts.openInBrowser, () =>
+          invoke("plugin:shell|open", { path: data.url }),
+        ),
+      );
+      break;
+
+    case "link":
+      if (data.isFile) {
+        items.push(
+          createMenuItem(menuTexts.downloadFile, () => {
+            const filename = getFilenameFromUrl(data.url);
+            invoke("download_file", {
+              params: { url: data.url, filename, language: userLanguage },
+            }).catch((error) => {
+              console.error("Failed to download file:", filename, error);
+              showDownloadError(filename);
+            });
+          }),
+        );
+      }
+      items.push(
+        createMenuItem(menuTexts.copyAddress, () =>
+          navigator.clipboard.writeText(data.url),
+        ),
+        createMenuItem(menuTexts.openInBrowser, () =>
+          invoke("plugin:shell|open", { path: data.url }),
+        ),
+      );
+      break;
+  }
+
+  return items;
+}
+
+function setupContextMenu(invoke) {
   const MENU_THEMES = {
     dark: {
       menu: {
@@ -958,137 +903,6 @@ async function init() {
     }
   }
 
-  function downloadImage(imageUrl) {
-    // Convert relative URLs to absolute
-    if (imageUrl.startsWith("/")) {
-      imageUrl = window.location.origin + imageUrl;
-    } else if (imageUrl.startsWith("./")) {
-      imageUrl = new URL(imageUrl, window.location.href).href;
-    } else if (
-      !imageUrl.startsWith("http") &&
-      !imageUrl.startsWith("data:") &&
-      !imageUrl.startsWith("blob:")
-    ) {
-      imageUrl = new URL(imageUrl, window.location.href).href;
-    }
-
-    // Generate filename from URL
-    const filename = getFilenameFromUrl(imageUrl) || "image";
-
-    // Handle different URL types
-    if (imageUrl.startsWith("data:")) {
-      downloadFromDataUri(imageUrl, filename);
-    } else if (imageUrl.startsWith("blob:")) {
-      if (window.blobToUrlCaches && window.blobToUrlCaches.has(imageUrl)) {
-        downloadFromBlobUrl(imageUrl, filename);
-      }
-    } else {
-      // Regular HTTP(S) image
-      const userLanguage = getUserLanguage();
-      invoke("download_file", {
-        params: {
-          url: imageUrl,
-          filename: filename,
-          language: userLanguage,
-        },
-      }).catch((error) => {
-        console.error("Failed to download image:", filename, error);
-        showDownloadError(filename);
-      });
-    }
-  }
-
-  // Check if element is media (image or video)
-  function getMediaInfo(target) {
-    // Check for img tags
-    if (target.tagName.toLowerCase() === "img") {
-      return { isMedia: true, url: target.src, type: "image" };
-    }
-
-    // Check for video tags
-    if (target.tagName.toLowerCase() === "video") {
-      return {
-        isMedia: true,
-        url: target.src || target.currentSrc,
-        type: "video",
-      };
-    }
-
-    // Check for elements with background images
-    if (target.style && target.style.backgroundImage) {
-      const bgImage = target.style.backgroundImage;
-      const urlMatch = bgImage.match(/url\(["']?([^"')]+)["']?\)/);
-      if (urlMatch) {
-        return { isMedia: true, url: urlMatch[1], type: "image" };
-      }
-    }
-
-    // Check for parent elements with background images
-    const parentWithBg =
-      target && typeof target.closest === "function"
-        ? target.closest('[style*="background-image"]')
-        : null;
-    if (parentWithBg) {
-      const bgImage = parentWithBg.style.backgroundImage;
-      const urlMatch = bgImage.match(/url\(["']?([^"')]+)["']?\)/);
-      if (urlMatch) {
-        return { isMedia: true, url: urlMatch[1], type: "image" };
-      }
-    }
-
-    return { isMedia: false, url: "", type: "" };
-  }
-
-  // Simplified menu builder
-  function buildMenuItems(type, data) {
-    const userLanguage = getUserLanguage();
-    const items = [];
-
-    switch (type) {
-      case "media":
-        const downloadText =
-          data.type === "image"
-            ? menuTexts.downloadImage
-            : menuTexts.downloadVideo;
-        items.push(
-          createMenuItem(downloadText, () => downloadImage(data.url)),
-          createMenuItem(menuTexts.copyAddress, () =>
-            navigator.clipboard.writeText(data.url),
-          ),
-          createMenuItem(menuTexts.openInBrowser, () =>
-            invoke("plugin:shell|open", { path: data.url }),
-          ),
-        );
-        break;
-
-      case "link":
-        if (data.isFile) {
-          items.push(
-            createMenuItem(menuTexts.downloadFile, () => {
-              const filename = getFilenameFromUrl(data.url);
-              invoke("download_file", {
-                params: { url: data.url, filename, language: userLanguage },
-              }).catch((error) => {
-                console.error("Failed to download file:", filename, error);
-                showDownloadError(filename);
-              });
-            }),
-          );
-        }
-        items.push(
-          createMenuItem(menuTexts.copyAddress, () =>
-            navigator.clipboard.writeText(data.url),
-          ),
-          createMenuItem(menuTexts.openInBrowser, () =>
-            invoke("plugin:shell|open", { path: data.url }),
-          ),
-        );
-        break;
-    }
-
-    return items;
-  }
-
   // Handle right-click context menu
   document.addEventListener(
     "contextmenu",
@@ -1113,13 +927,13 @@ async function init() {
         let menuItems = [];
 
         if (mediaInfo.isMedia) {
-          menuItems = buildMenuItems("media", mediaInfo);
+          menuItems = buildMenuItems("media", mediaInfo, invoke);
         } else if (isLink) {
           const linkUrl = linkElement.href;
           menuItems = buildMenuItems("link", {
             url: linkUrl,
             isFile: isDownloadableFile(linkUrl),
-          });
+          }, invoke);
         }
 
         showContextMenu(event.clientX, event.clientY, menuItems);
@@ -1136,6 +950,201 @@ async function init() {
       hideContextMenu();
     }
   });
+}
+
+async function init() {
+  await waitForBody();
+  // Debug panel
+  const debugDiv = document.createElement("div");
+  debugDiv.id = "redwx-debug";
+  debugDiv.style.cssText = "position:fixed;bottom:10px;right:10px;background:rgba(0,0,0,0.8);color:#0f0;padding:8px;font-family:monospace;font-size:12px;z-index:999999;max-width:400px;word-break:break-all;display:none;";
+  document.body.appendChild(debugDiv);
+  const debug = (msg) => { console.log("[RedWX-DEBUG]", msg); };
+
+  const tauri = window.__TAURI__;
+  console.log("[RedWX] __TAURI__:", tauri ? "yes" : "no");
+  debug("__TAURI__: " + (tauri ? "yes" : "no"));
+  if (tauri) {
+    debug("keys: " + Object.keys(tauri).join(","));
+  }
+  const invoke = tauri?.core?.invoke;
+  const pakeConfig = window["pakeConfig"] || {};
+  let appWindow = null;
+  if (tauri?.window?.getCurrentWindow) {
+    try {
+      appWindow = await tauri.window.getCurrentWindow();
+      console.log("[RedWX] getCurrentWindow: ok");
+      debug("getCurrentWindow: ok");
+    } catch (err) {
+      console.log("[RedWX] getCurrentWindow ERROR:", err.message);
+      debug("getCurrentWindow ERROR: " + err.message);
+    }
+  } else {
+    console.log("[RedWX] getCurrentWindow: not available");
+    debug("getCurrentWindow: not available");
+  }
+  console.log("[RedWX] init complete, appWindow:", appWindow ? "ok" : "null");
+  const forceInternalNavigation = pakeConfig.force_internal_navigation === true;
+  const internalUrlRegex = pakeConfig.internal_url_regex || "";
+  let internalUrlPattern = null;
+  if (internalUrlRegex) {
+    try {
+      internalUrlPattern = new RegExp(internalUrlRegex);
+    } catch (e) {
+      console.error("[RedWX] Invalid internal_url_regex pattern:", e);
+    }
+  }
+
+  if (!document.getElementById("pake-top-dom")) {
+    const topDom = document.createElement("div");
+    topDom.id = "pake-top-dom";
+    document.body.appendChild(topDom);
+  }
+
+  const domEl = document.getElementById("pake-top-dom");
+
+  domEl.addEventListener("touchstart", () => {
+    console.log("[RedWX] touchstart drag");
+    if (appWindow) appWindow.startDragging();
+  });
+
+  domEl.addEventListener("mousedown", (e) => {
+    console.log("[RedWX] mousedown, buttons:", e.buttons, "detail:", e.detail);
+    if (e.buttons === 1 && e.detail !== 2 && appWindow) {
+      console.log("[RedWX] dragging");
+      appWindow.startDragging();
+    }
+  });
+
+  domEl.addEventListener("dblclick", () => {
+    console.log("[RedWX] dblclick");
+    if (!appWindow) return;
+    appWindow.isFullscreen().then((fullscreen) => {
+      console.log("[RedWX] fullscreen:", fullscreen);
+      appWindow.setFullscreen(!fullscreen);
+    });
+  });
+
+  // macOS-style traffic light button handlers for Windows
+  const isWindows = /windows/i.test(navigator.userAgent);
+  if (isWindows && pakeConfig?.hide_title_bar) {
+    const getAppWindow = async () => {
+      if (appWindow) return appWindow;
+      if (tauri?.window?.getCurrentWindow) {
+        try {
+          appWindow = await tauri.window.getCurrentWindow();
+        } catch (err) {
+          console.debug("[RedWX] getCurrentWindow fallback failed:", err);
+        }
+      }
+      return appWindow;
+    };
+
+    const handleTrafficLightClick = async (e) => {
+      const trafficLight = e.target.closest("#pake-traffic-lights .traffic-light");
+      console.log("[RedWX] traffic light click, target:", e.target.className, "trafficLight:", trafficLight ? "yes" : "no");
+      if (!trafficLight) return;
+
+      const win = await getAppWindow();
+      if (!win) return;
+
+      try {
+        if (trafficLight.classList.contains("close")) {
+          console.log("[RedWX] close");
+          win.close();
+        } else if (trafficLight.classList.contains("minimize")) {
+          console.log("[RedWX] minimize");
+          win.minimize();
+        } else if (trafficLight.classList.contains("maximize")) {
+          console.log("[RedWX] maximize");
+          const isMaximized = await win.isMaximized();
+          if (isMaximized) {
+            win.unmaximize();
+          } else {
+            win.maximize();
+          }
+        }
+      } catch (error) {
+        console.error("[RedWX] Traffic light action failed:", error);
+      }
+    };
+
+    document.addEventListener("click", handleTrafficLightClick, true);
+    console.log("[RedWX] Traffic light click listener attached");
+
+    // Update maximize state
+    const updateMaximizeState = async () => {
+      const maximizeBtn = document.querySelector("#pake-traffic-lights .maximize");
+      if (!maximizeBtn) return;
+      const win = await getAppWindow();
+      if (!win) return;
+      win.isMaximized().then((maximized) => {
+        maximizeBtn.title = maximized ? "Restore" : "Maximize";
+      });
+    };
+
+    window.addEventListener("focus", updateMaximizeState);
+    updateMaximizeState();
+
+    // Window active/inactive state for traffic light appearance
+    window.addEventListener("focus", () => {
+      const trafficLights = document.getElementById("pake-traffic-lights");
+      if (trafficLights) trafficLights.classList.remove("inactive");
+    });
+    window.addEventListener("blur", () => {
+      const trafficLights = document.getElementById("pake-traffic-lights");
+      if (trafficLights) trafficLights.classList.add("inactive");
+    });
+  }
+
+  if (window["pakeConfig"]?.disabled_web_shortcuts !== true) {
+    document.addEventListener("keyup", (event) => {
+      if (/windows|linux/i.test(navigator.userAgent) && event.ctrlKey) {
+        handleShortcut(event);
+      }
+      if (/macintosh|mac os x/i.test(navigator.userAgent) && event.metaKey) {
+        handleShortcut(event);
+      }
+    });
+  }
+
+  document.addEventListener(
+    "paste",
+    (event) => {
+      if (pasteAsPlainTextPending) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        const text = event.clipboardData?.getData("text/plain") || "";
+        if (text) {
+          document.execCommand("insertText", false, text);
+        }
+      }
+    },
+    true,
+  );
+
+  collectUrlToBlobs();
+  detectDownloadByCreateAnchor(invoke);
+
+  setupNavigationHandlers(forceInternalNavigation, internalUrlPattern, invoke);
+  setupContextMenu(invoke);
+
+  // Set the default zoom, There are problems with Loop without using try-catch.
+  try {
+    setDefaultZoom();
+  } catch (e) {
+    console.log(e);
+  }
+
+  // Fix Chinese input method "Enter" on Safari
+  document.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.key === "Process") e.stopPropagation();
+    },
+    true,
+  );
 }
 
 // Bridge the Web Notification + Web Badging APIs to Pake's Rust commands so
@@ -1165,18 +1174,27 @@ async function init() {
   const setBadge = (count) => {
     pageManagedBadge = true;
     autoBadgeActive = false;
-    return invoke("set_dock_badge", { count }).catch(() => {});
+    return invoke("set_dock_badge", { count }).catch((err) => {
+      console.warn("[RedWX] set_dock_badge failed:", err);
+    });
   };
-  const clearBadge = () => invoke("clear_dock_badge").catch(() => {});
+  const clearBadge = () =>
+    invoke("clear_dock_badge").catch((err) => {
+      console.warn("[RedWX] clear_dock_badge failed:", err);
+    });
   const setLabel = (label) => {
     pageManagedBadge = true;
     autoBadgeActive = false;
-    return invoke("set_dock_badge_label", { label }).catch(() => {});
+    return invoke("set_dock_badge_label", { label }).catch((err) => {
+      console.warn("[RedWX] set_dock_badge_label failed:", err);
+    });
   };
   const incrementAutoBadge = () => {
     if (pageManagedBadge) return Promise.resolve();
     autoBadgeActive = true;
-    return invoke("increment_dock_badge").catch(() => {});
+    return invoke("increment_dock_badge").catch((err) => {
+      console.warn("[RedWX] increment_dock_badge failed:", err);
+    });
   };
 
   window.addEventListener("focus", () => {
@@ -1235,7 +1253,9 @@ async function init() {
       writable: true,
       value: wrappedNotification,
     });
-  } catch (_) {}
+  } catch (err) {
+    console.warn("[RedWX] Notification polyfill install failed:", err);
+  }
 
   // Web Badging API: https://wicg.github.io/badging/
   // setAppBadge() with no argument shows an indicator dot; with a number,
@@ -1271,7 +1291,9 @@ async function init() {
       writable: true,
       value: clearAppBadge,
     });
-  } catch (_) {}
+  } catch (err) {
+    console.warn("[RedWX] Badging API polyfill install failed:", err);
+  }
 })();
 
 function setDefaultZoom() {

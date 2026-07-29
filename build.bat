@@ -51,8 +51,9 @@ taskkill /F /IM red-wx.exe >nul 2>nul
 echo.
 echo [3/3] Building Tauri app...
 
-:: Limit Rust compiler parallelism to avoid pagefile exhaustion (1455)
-set CARGO_BUILD_JOBS=4
+ :: Limit Rust compiler parallelism to avoid pagefile exhaustion (1455)
+ set CARGO_BUILD_JOBS=1
+ set RUST_MIN_STACK=16777216
 
 call pnpm run build --no-bundle
 if errorlevel 1 (

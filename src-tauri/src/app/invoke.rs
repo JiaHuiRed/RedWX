@@ -4,7 +4,7 @@ use std::io::Write;
 use std::str::FromStr;
 use std::sync::atomic::{AtomicI64, Ordering};
 use tauri::http::Method;
-use tauri::{command, AppHandle, Manager, Url, WebviewWindow};
+use tauri::{command, AppHandle, Manager, Url};
 use tauri_plugin_http::reqwest::{ClientBuilder, Request};
 
 static BADGE_COUNT: AtomicI64 = AtomicI64::new(0);
@@ -37,7 +37,7 @@ fn apply_badge(app: &AppHandle, count: Option<i64>) -> Result<(), String> {
 fn apply_badge_label(app: &AppHandle, label: Option<&str>) -> Result<(), String> {
     let window = app
         .get_webview_window("pake")
-        .ok_or("Main window not found")?;
+        .ok_or("Window not found")?;
     let count = label.and_then(|s| s.parse::<i64>().ok());
     window
         .set_badge_count(count)
@@ -67,7 +67,9 @@ pub struct NotificationParams {
 
 #[command]
 pub async fn download_file(app: AppHandle, params: DownloadFileParams) -> Result<(), String> {
-    let window: WebviewWindow = app.get_webview_window("pake").ok_or("Window not found")?;
+    let window = app
+        .get_webview_window("pake")
+        .ok_or("Window not found")?;
 
     show_toast(
         &window,
@@ -130,7 +132,9 @@ pub async fn download_file_by_binary(
     app: AppHandle,
     params: BinaryDownloadParams,
 ) -> Result<(), String> {
-    let window: WebviewWindow = app.get_webview_window("pake").ok_or("Window not found")?;
+    let window = app
+        .get_webview_window("pake")
+        .ok_or("Window not found")?;
 
     show_toast(
         &window,
@@ -226,7 +230,7 @@ pub fn clear_cache_and_restart(app: AppHandle) -> Result<(), String> {
             }
         }
     } else {
-        Err("Main window not found".to_string())
+        Err("Window not found".to_string())
     }
 }
 
@@ -235,7 +239,7 @@ pub fn minimize_window(app: AppHandle) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("pake") {
         window.minimize().map_err(|e| e.to_string())
     } else {
-        Err("Main window not found".to_string())
+        Err("Window not found".to_string())
     }
 }
 
@@ -248,7 +252,7 @@ pub fn maximize_window(app: AppHandle) -> Result<(), String> {
             window.maximize().map_err(|e| e.to_string())
         }
     } else {
-        Err("Main window not found".to_string())
+        Err("Window not found".to_string())
     }
 }
 
@@ -257,6 +261,6 @@ pub fn close_window(app: AppHandle) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("pake") {
         window.close().map_err(|e| e.to_string())
     } else {
-        Err("Main window not found".to_string())
+        Err("Window not found".to_string())
     }
 }
