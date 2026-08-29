@@ -27,6 +27,12 @@ AGENTS.md
 AGENTS.override.md
 .claude/
 .agents/settings.local.json
+.redcode/
+
+# Local environment files
+.attachments/
+.cargo/config.toml
+
 # Editor directories and files
 # Logs
 AGENT.md
